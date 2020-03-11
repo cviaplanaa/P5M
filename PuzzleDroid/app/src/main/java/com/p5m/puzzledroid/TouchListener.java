@@ -10,9 +10,9 @@ import static java.lang.Math.sqrt;
 public class TouchListener implements View.OnTouchListener {
     private float xDelta;
     private float yDelta;
-    private PuzzleActivity activity;
+    private PuzzleController activity;
 
-    public TouchListener(PuzzleActivity activity) {
+    public TouchListener(PuzzleController activity) {
         this.activity = activity;
     }
 
@@ -22,8 +22,8 @@ public class TouchListener implements View.OnTouchListener {
         float y = motionEvent.getRawY();
         final double tolerance = sqrt(pow(view.getWidth(), 2) + pow(view.getHeight(), 2)) / 10;
 
-        PuzzlePiece piece = (PuzzlePiece) view;
-        if (!piece.canMove) {
+        PieceController piece = (PieceController) view;
+        if (!piece.movable) {
             return true;
         }
 
@@ -40,15 +40,15 @@ public class TouchListener implements View.OnTouchListener {
                 view.setLayoutParams(lParams);
                 break;
             case MotionEvent.ACTION_UP:
-                int xDiff = StrictMath.abs(piece.xCoord - lParams.leftMargin);
-                int yDiff = StrictMath.abs(piece.yCoord - lParams.topMargin);
+                int xDiff = StrictMath.abs(piece.x - lParams.leftMargin);
+                int yDiff = StrictMath.abs(piece.y - lParams.topMargin);
                 if (xDiff <= tolerance && yDiff <= tolerance) {
-                    lParams.leftMargin = piece.xCoord;
-                    lParams.topMargin = piece.yCoord;
+                    lParams.leftMargin = piece.x;
+                    lParams.topMargin = piece.y;
                     piece.setLayoutParams(lParams);
-                    piece.canMove = false;
+                    piece.movable = false;
                     sendViewToBack(piece);
-                    activity.checkGameOver();
+                    activity.checkEnd();
                 }
                 break;
         }

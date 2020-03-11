@@ -15,16 +15,16 @@ import android.widget.ImageView;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ImageAdapter extends BaseAdapter {
-    private Context mContext;
-    private AssetManager am;
+public class ImageController extends BaseAdapter {
+    private Context myContext;
+    private AssetManager myAssetManager;
     private String[] files;
 
-    public ImageAdapter(Context c) {
-        mContext = c;
-        am = mContext.getAssets();
+    public ImageController(Context c) {
+        myContext = c;
+        myAssetManager = myContext.getAssets();
         try {
-            files  = am.list("img");
+            files  = myAssetManager.list("img");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -45,7 +45,7 @@ public class ImageAdapter extends BaseAdapter {
     // create a new ImageView for each item referenced by the Adapter
     public View getView(final int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            final LayoutInflater layoutInflater = LayoutInflater.from(mContext);
+            final LayoutInflater layoutInflater = LayoutInflater.from(myContext);
             convertView = layoutInflater.inflate(R.layout.grid_element, null);
         }
 
@@ -59,7 +59,7 @@ public class ImageAdapter extends BaseAdapter {
                     private Bitmap bitmap;
                     @Override
                     protected Void doInBackground(Void... voids) {
-                        bitmap = getPicFromAsset(imageView, files[position]);
+                        bitmap = getImageFromAssets(imageView, files[position]);
                         return null;
                     }
 
@@ -75,7 +75,7 @@ public class ImageAdapter extends BaseAdapter {
         return convertView;
     }
 
-    private Bitmap getPicFromAsset(ImageView imageView, String assetName) {
+    private Bitmap getImageFromAssets(ImageView imageView, String assetName) {
         // Get the dimensions of the View
         int targetW = imageView.getWidth();
         int targetH = imageView.getHeight();
@@ -86,7 +86,7 @@ public class ImageAdapter extends BaseAdapter {
         }
 
         try {
-            InputStream is = am.open("img/" + assetName);
+            InputStream is = myAssetManager.open("img/" + assetName);
             // Get the dimensions of the bitmap
             BitmapFactory.Options bmOptions = new BitmapFactory.Options();
             bmOptions.inJustDecodeBounds = true;
