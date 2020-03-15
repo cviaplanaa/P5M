@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/P5M.iml" filepath="$PROJECT_DIR$/.idea/P5M.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PuzzleDroid.iml" filepath="$PROJECT_DIR$/PuzzleDroid.iml" group="PuzzleDroid" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="PuzzleDroid/app" />
     </modules>
   </component>
 </project>
