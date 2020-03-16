@@ -57,6 +57,5 @@
         app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toEndOf="@+id/galleryButton" />
 
-
 </androidx.constraintlayout.widget.ConstraintLayout>
 <!--</android.support.constraint.ConstraintLayout>-->
