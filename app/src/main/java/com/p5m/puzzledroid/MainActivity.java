@@ -1,6 +1,7 @@
 package com.p5m.puzzledroid;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.core.app.ActivityCompat;
@@ -9,6 +10,7 @@ import androidx.core.content.FileProvider;
 
 import android.Manifest;
 import android.content.ClipData;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
@@ -68,7 +70,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onCameraClick(View view) {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        AlertDialog.Builder camAlert = new AlertDialog.Builder(MainActivity.this);
+        camAlert.setTitle("Próximamente");
+        camAlert.setMessage("Esta función estará lista en el segundo producto");
+        camAlert.setPositiveButton("De acuerdo", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        camAlert.show();
+        /*Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
             try {
@@ -82,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
             }
-        }
+        }*/
     }
 
     public void onGalleryClick(View view) {
@@ -157,11 +169,13 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.help:
-                Toast.makeText(this, "Item 1 selected", Toast.LENGTH_SHORT).show();
+                Intent webviewIntent = new Intent(this, help.class);
+                startActivity(webviewIntent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
 }
 
