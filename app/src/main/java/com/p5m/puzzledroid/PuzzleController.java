@@ -25,11 +25,19 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.p5m.puzzledroid.database.Score;
+import com.p5m.puzzledroid.database.ScoreDao;
+import com.p5m.puzzledroid.database.ScoreDatabase;
+import com.p5m.puzzledroid.util.AppExecutors;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
+
+import timber.log.Timber;
 
 import static java.lang.Math.abs;
 
@@ -76,6 +84,21 @@ public class PuzzleController extends AppCompatActivity {
                     lParams.topMargin = layout.getHeight() - piece.height;
                     piece.setLayoutParams(lParams);
                 }
+            }
+        });
+        /*
+        Database test
+         */
+        ScoreDatabase scoreDatabase = ScoreDatabase.getInstance(this);
+        final ScoreDao scoreDao = scoreDatabase.scoreDao();
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                Score score = new Score();
+                score.setPuzzleName("puzzle nuevo");
+                scoreDao.insert(score);
+                List<Score> scores = scoreDao.getScores();
+                Timber.i("ScoreInfo: " + scores.toString());
             }
         });
     }

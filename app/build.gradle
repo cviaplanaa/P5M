@@ -49,9 +49,9 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment:2.2.1'
     implementation 'androidx.navigation:navigation-ui:2.2.1'
     // Coroutines: for getting off the UI thread
-    def coroutines = "1.0.1"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines"
+//    def coroutines = "1.0.1"
+//    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines"
+//    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines"
     // Room: for SQLite DB
     def room_version = "2.2.4"
     implementation "androidx.room:room-runtime:$room_version"
