@@ -5,6 +5,8 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import java.util.Date;
+
 /**
  * Class that represents a table from the database.
  */
@@ -14,18 +16,32 @@ public class Score {
     private int id;
     @ColumnInfo(name = "puzzle_name")
     private String puzzleName;
-    @ColumnInfo(name = "time_of_score")
-    private String timeOfScore;
+    @ColumnInfo(name = "initial_time")
+    private Date initialTime;
+    @ColumnInfo(name = "finish_time")
+    private Date finishTime;
     @ColumnInfo(name = "score_seconds")
     private int scoreSeconds;
 
-    public Score(int id, String puzzleName, String timeOfScore, int scoreSeconds) {
+    /**
+     * Constructor necessary for Room.
+     * @param id
+     * @param puzzleName
+     * @param initialTime
+     * @param finishTime
+     * @param scoreSeconds
+     */
+    public Score(int id, String puzzleName, Date initialTime, Date finishTime, int scoreSeconds) {
         this.id = id;
         this.puzzleName = puzzleName;
-        this.timeOfScore = timeOfScore;
+        this.initialTime = initialTime;
+        this.finishTime = finishTime;
         this.scoreSeconds = scoreSeconds;
     }
 
+    /**
+     * Constructor that will be used in the program.
+     */
     @Ignore
     public Score() { }
 
@@ -35,7 +51,8 @@ public class Score {
         return "Score{" +
                 "id=" + id +
                 ", puzzleName='" + puzzleName + '\'' +
-                ", timeOfScore='" + timeOfScore + '\'' +
+                ", initialTime='" + initialTime + '\'' +
+                ", finishTime='" + finishTime + '\'' +
                 ", scoreSeconds=" + scoreSeconds +
                 '}';
     }
@@ -56,12 +73,20 @@ public class Score {
         this.puzzleName = puzzleName;
     }
 
-    public String getTimeOfScore() {
-        return timeOfScore;
+    public Date getInitialTime() {
+        return initialTime;
     }
 
-    public void setTimeOfScore(String timeOfScore) {
-        this.timeOfScore = timeOfScore;
+    public void setInitialTime(Date initialTime) {
+        this.initialTime = initialTime;
+    }
+
+    public Date getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(Date finishTime) {
+        this.finishTime = finishTime;
     }
 
     public int getScoreSeconds() {

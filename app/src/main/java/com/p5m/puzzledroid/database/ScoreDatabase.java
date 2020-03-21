@@ -5,12 +5,15 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 
 /**
  * Class that represents the SQLite database.
  */
-@Database(entities = Score.class, exportSchema = false, version = 3)
+@Database(entities = Score.class, exportSchema = false, version = 5)
+@TypeConverters({Converters.class})
 public abstract class ScoreDatabase extends RoomDatabase {
+    public abstract ScoreDao scoreDao();
     private static final String DB_NAME = "score_db";
     private static ScoreDatabase instance;
 
@@ -23,5 +26,4 @@ public abstract class ScoreDatabase extends RoomDatabase {
         }
         return instance;
     }
-    public abstract ScoreDao scoreDao();
 }

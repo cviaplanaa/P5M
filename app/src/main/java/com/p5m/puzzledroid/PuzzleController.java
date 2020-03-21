@@ -33,7 +33,9 @@ import com.p5m.puzzledroid.util.AppExecutors;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -45,6 +47,8 @@ public class PuzzleController extends AppCompatActivity {
     ArrayList<PieceController> pieces;
     String photoPath;
     String photoUri;
+    // The score that will be recorded for this puzzle
+    Score score;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,21 +91,11 @@ public class PuzzleController extends AppCompatActivity {
                 }
             }
         });
-        /*
-        Database test
-         */
-        ScoreDatabase scoreDatabase = ScoreDatabase.getInstance(this);
-        final ScoreDao scoreDao = scoreDatabase.scoreDao();
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                Score score = new Score();
-                score.setPuzzleName("puzzle nuevo");
-                scoreDao.insert(score);
-                List<Score> scores = scoreDao.getScores();
-                Timber.i("ScoreInfo: " + scores.toString());
-            }
-        });
+
+        // Create the Score object with the current time
+        score = new Score();
+        score.setPuzzleName("Name of Puzzle");
+        score.setInitialTime(Calendar.getInstance().getTime());
     }
 
     private void setImageFromAssets(String assetName, ImageView imageView) {
@@ -329,8 +323,31 @@ public class PuzzleController extends AppCompatActivity {
             }
         }
         if (allUnmovable) {
-            finish();
+            onFinishPuzzle();
         }
+    }
+    /**
+     * Called upon finishing the puzzle. Store the score and exit the view.
+     */
+    private void onFinishPuzzle() {
+        score.setFinishTime(Calendar.getInstance().getTime());
+        // Calculate the seconds between the two dates (the units are milliseconds)
+        long difference = score.getFinishTime().getTime() - score.getInitialTime().getTime();
+        score.setScoreSeconds((int) (difference / 1000));
+        ScoreDatabase scoreDatabase = ScoreDatabase.getInstance(this);
+        final ScoreDao scoreDao = scoreDatabase.scoreDao();
+        // Run the database access code on another thread/scope
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                score.setPuzzleName("puzzle nuevo");
+                scoreDao.insert(score);
+                List<Score> scores = scoreDao.getScores();
+                Timber.i("ScoreInfo: %s", scores.toString());
+            }
+        });
+        // Exit the view
+        finish();
     }
 
     private void setImageFromPath(String mCurrentPhotoPath, ImageView imageView) {
