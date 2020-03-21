@@ -4,6 +4,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+
+import timber.log.Timber;
+
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -13,11 +16,13 @@ public class TouchListener implements View.OnTouchListener {
     private PuzzleController activity;
 
     public TouchListener(PuzzleController activity) {
+        Timber.i("TouchListener");
         this.activity = activity;
     }
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
+        Timber.i("onTouch");
         float x = motionEvent.getRawX();
         float y = motionEvent.getRawY();
         final double tolerance = sqrt(pow(view.getWidth(), 2) + pow(view.getHeight(), 2)) / 10;
@@ -57,6 +62,7 @@ public class TouchListener implements View.OnTouchListener {
     }
 
     public void sendViewToBack(final View child) {
+        Timber.i("sendViewToBack");
         final ViewGroup parent = (ViewGroup)child.getParent();
         if (null != parent) {
             parent.removeView(child);

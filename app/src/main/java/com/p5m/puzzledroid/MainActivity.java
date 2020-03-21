@@ -35,6 +35,8 @@ import java.text.SimpleDateFormat;
 
 import java.util.Date;
 
+import timber.log.Timber;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Timber.i("OnCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -98,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onGalleryClick(View view) {
+        Timber.i("onGalleryClick");
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSION_READ_EXTERNAL_STORAGE);
         } else {
@@ -108,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private File createImageFile() throws IOException {
+        Timber.i("createImageFile");
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             // permission not granted, initiate request
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE);
@@ -131,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Timber.i("onRequestPermissionsResult");
         switch (requestCode) {
             case REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -144,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Timber.i("onActivityResult");
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Intent intent = new Intent(this, PuzzleController.class);
             intent.putExtra("mCurrentPhotoPath", photoPath);

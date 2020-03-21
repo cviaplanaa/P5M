@@ -15,12 +15,15 @@ import android.widget.ImageView;
 import java.io.IOException;
 import java.io.InputStream;
 
+import timber.log.Timber;
+
 public class ImageController extends BaseAdapter {
     private Context myContext;
     private AssetManager myAssetManager;
     private String[] files;
 
     public ImageController(Context c) {
+        Timber.i("ImageController");
         myContext = c;
         myAssetManager = myContext.getAssets();
         try {
@@ -44,6 +47,7 @@ public class ImageController extends BaseAdapter {
 
     // create a new ImageView for each item referenced by the Adapter
     public View getView(final int position, View convertView, ViewGroup parent) {
+        Timber.i("getView");
         if (convertView == null) {
             final LayoutInflater layoutInflater = LayoutInflater.from(myContext);
             convertView = layoutInflater.inflate(R.layout.grid_element, null);
@@ -76,6 +80,7 @@ public class ImageController extends BaseAdapter {
     }
 
     private Bitmap getImageFromAssets(ImageView imageView, String assetName) {
+        Timber.i("getImageFromAssets");
         // Get the dimensions of the View
         int targetW = imageView.getWidth();
         int targetH = imageView.getHeight();

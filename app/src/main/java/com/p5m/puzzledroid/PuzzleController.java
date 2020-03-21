@@ -50,6 +50,7 @@ public class PuzzleController extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_puzzle);
+        Timber.i("onCreate");
 
         final RelativeLayout layout = findViewById(R.id.layout);
         final ImageView imageView = findViewById(R.id.imageView);
@@ -107,6 +108,7 @@ public class PuzzleController extends AppCompatActivity {
         // Get the dimensions of the View
         int targetW = imageView.getWidth();
         int targetH = imageView.getHeight();
+        Timber.i("setImageFromAssets");
 
         AssetManager am = getAssets();
         try {
@@ -141,6 +143,7 @@ public class PuzzleController extends AppCompatActivity {
         int rows = 4;
         int cols = 3;
         int piecesNumber = rows * cols;
+        Timber.i("cutImage");
 
         ImageView imageView = findViewById(R.id.imageView);
         ArrayList<PieceController> pieces = new ArrayList<>(piecesNumber);
@@ -274,6 +277,7 @@ public class PuzzleController extends AppCompatActivity {
 
     private int[] getPositionInImage(ImageView imageView) {
         int[] ret = new int[4];
+        Timber.i("getPositionInImage");
 
         if (imageView == null || imageView.getDrawable() == null)
             return ret;
@@ -312,27 +316,28 @@ public class PuzzleController extends AppCompatActivity {
 
         return ret;
     }
-
+    /**
+     * Check if the puzzle is finished. If all pieces are non-movable, it is.
+     */
     public void checkEnd() {
-        if (isFinished()) {
-            finish();
-        }
-    }
-
-    private boolean isFinished() {
+        Timber.i("checkEnd");
+        boolean allUnmovable = true;
         for (PieceController piece : pieces) {
             if (piece.movable) {
-                return false;
+                allUnmovable = false;
+                break;
             }
         }
-
-        return true;
+        if (allUnmovable) {
+            finish();
+        }
     }
 
     private void setImageFromPath(String mCurrentPhotoPath, ImageView imageView) {
         // Get the dimensions of the View
         int targetW = imageView.getWidth();
         int targetH = imageView.getHeight();
+        Timber.i("setImageFromPath");
 
         // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
@@ -375,6 +380,7 @@ public class PuzzleController extends AppCompatActivity {
     }
 
     public static Bitmap rotateImage(Bitmap source, float angle) {
+        Timber.i("rotateImage");
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),

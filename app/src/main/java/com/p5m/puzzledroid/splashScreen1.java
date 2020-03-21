@@ -6,11 +6,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
+import timber.log.Timber;
+
 public class splashScreen1 extends AppCompatActivity {
 
     Handler handler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Timber.i("onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen1);
 
