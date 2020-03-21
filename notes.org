@@ -23,3 +23,8 @@ PieceController: PierceController
    position. It checks if the puzzle is ended.
 
 PuzzleController: checkEnd
+
+5) This function is called when the last piece is inserted, it adds
+   the score to the database and finishes the puzzle view.
+
+PuzzleController: onFinishPuzzle

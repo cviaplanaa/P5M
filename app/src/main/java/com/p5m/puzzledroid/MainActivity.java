@@ -6,10 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 
 import android.Manifest;
-import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,7 +16,6 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,7 +24,8 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import android.widget.Toast;
-import android.widget.Toolbar;
+
+import com.p5m.puzzledroid.scores.ScoresActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
             grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Timber.i("Create Intent");
                     Intent intent = new Intent(getApplicationContext(), PuzzleController.class);
                     intent.putExtra("assetName", files[i % files.length]);
                     startActivity(intent);
@@ -179,6 +178,8 @@ public class MainActivity extends AppCompatActivity {
                 Intent webviewIntent = new Intent(this, help.class);
                 startActivity(webviewIntent);
                 return true;
+            case R.id.scores:
+                startActivity(new Intent(this, ScoresActivity.class));
             default:
                 return super.onOptionsItemSelected(item);
         }

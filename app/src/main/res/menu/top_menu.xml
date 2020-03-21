@@ -3,10 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/scores"
+        android:icon="@drawable/ic_scores"
+        android:title="Scores"
+        app:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/help"
         android:icon="@drawable/ic_help"
-        android:title="Item 1"
+        android:title="Help"
         app:showAsAction="ifRoom" />
-
 
 </menu>

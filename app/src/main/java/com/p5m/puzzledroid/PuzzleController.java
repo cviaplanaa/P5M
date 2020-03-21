@@ -59,7 +59,10 @@ public class PuzzleController extends AppCompatActivity {
         final RelativeLayout layout = findViewById(R.id.layout);
         final ImageView imageView = findViewById(R.id.imageView);
 
+        // Get the data from the intent
         Intent intent = getIntent();
+        String intentExtra = intent.getStringExtra("assetName");
+        Timber.i(intentExtra);
         final String assetName = intent.getStringExtra("assetName");
         photoPath = intent.getStringExtra("mCurrentPhotoPath");
         photoUri = intent.getStringExtra("mCurrentPhotoUri");
@@ -94,7 +97,7 @@ public class PuzzleController extends AppCompatActivity {
 
         // Create the Score object with the current time
         score = new Score();
-        score.setPuzzleName("Name of Puzzle");
+        score.setPuzzleName(intentExtra);
         score.setInitialTime(Calendar.getInstance().getTime());
     }
 
@@ -330,17 +333,16 @@ public class PuzzleController extends AppCompatActivity {
      * Called upon finishing the puzzle. Store the score and exit the view.
      */
     private void onFinishPuzzle() {
+        Timber.i("onFinishPuzzle");
         score.setFinishTime(Calendar.getInstance().getTime());
         // Calculate the seconds between the two dates (the units are milliseconds)
         long difference = score.getFinishTime().getTime() - score.getInitialTime().getTime();
         score.setScoreSeconds((int) (difference / 1000));
-        ScoreDatabase scoreDatabase = ScoreDatabase.getInstance(this);
-        final ScoreDao scoreDao = scoreDatabase.scoreDao();
+        final ScoreDao scoreDao = ScoreDatabase.getInstance(this).scoreDao();
         // Run the database access code on another thread/scope
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                score.setPuzzleName("puzzle nuevo");
                 scoreDao.insert(score);
                 List<Score> scores = scoreDao.getScores();
                 Timber.i("ScoreInfo: %s", scores.toString());

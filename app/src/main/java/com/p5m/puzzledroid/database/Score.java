@@ -6,6 +6,7 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Class that represents a table from the database.
@@ -57,6 +58,9 @@ public class Score {
                 '}';
     }
 
+    /*
+    The setters and getters are necessary for Room
+     */
     public int getId() {
         return id;
     }
@@ -95,5 +99,20 @@ public class Score {
 
     public void setScoreSeconds(int scoreSeconds) {
         this.scoreSeconds = scoreSeconds;
+    }
+
+    /**
+     * Format a list of scores to be shown in the Scores view.
+     */
+    @Ignore
+    public static String formatScores(List<Score> scores) {
+        String result = "";
+        for (Score score : scores) {
+            result = result
+                    + "Puzzle: " + score.getPuzzleName() + "\n"
+                    + "Time: " + score.getFinishTime() + "\n"
+                    + "Score: " + score.getScoreSeconds() + " seconds" + "\n\n";
+        }
+        return result;
     }
 }
