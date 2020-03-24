@@ -14,7 +14,7 @@
         android:theme="@style/AppTheme">
         <activity android:name=".scores.ScoresActivity"></activity>
         <activity android:name=".help" />
-        <activity android:name=".splashScreen1">
+        <activity android:name=".SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
