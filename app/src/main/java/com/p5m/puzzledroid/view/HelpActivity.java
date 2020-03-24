@@ -1,4 +1,4 @@
-package com.p5m.puzzledroid.help;
+package com.p5m.puzzledroid.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 

@@ -1,4 +1,4 @@
-package com.p5m.puzzledroid;
+package com.p5m.puzzledroid.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,10 +25,12 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.p5m.puzzledroid.PieceController;
+import com.p5m.puzzledroid.R;
+import com.p5m.puzzledroid.TouchListener;
 import com.p5m.puzzledroid.database.Score;
 import com.p5m.puzzledroid.database.ScoreDao;
 import com.p5m.puzzledroid.database.ScoreDatabase;
-import com.p5m.puzzledroid.help.HelpActivity;
 import com.p5m.puzzledroid.util.AppExecutors;
 
 import java.io.IOException;
@@ -43,7 +45,7 @@ import timber.log.Timber;
 
 import static java.lang.Math.abs;
 
-public class PuzzleController extends AppCompatActivity {
+public class PuzzleControllerActivity extends AppCompatActivity {
     ArrayList<PieceController> pieces;
     String photoPath;
     String photoUri;
@@ -80,7 +82,7 @@ public class PuzzleController extends AppCompatActivity {
                     imageView.setImageURI(Uri.parse(photoUri));
                 }
                 pieces = cutImage();
-                TouchListener touchListener = new TouchListener(PuzzleController.this);
+                TouchListener touchListener = new TouchListener(PuzzleControllerActivity.this);
                 // shuffle pieces order
                 Collections.shuffle(pieces);
                 for (PieceController piece : pieces) {
@@ -420,6 +422,8 @@ public class PuzzleController extends AppCompatActivity {
                 Intent webviewIntent = new Intent(this, HelpActivity.class);
                 startActivity(webviewIntent);
                 return true;
+            case R.id.scores:
+                startActivity(new Intent(this, ScoresActivity.class));
             default:
                 return super.onOptionsItemSelected(item);
         }

@@ -1,4 +1,4 @@
-package com.p5m.puzzledroid.splashScreen;
+package com.p5m.puzzledroid.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
-import com.p5m.puzzledroid.MainActivity;
 import com.p5m.puzzledroid.R;
 
 import timber.log.Timber;

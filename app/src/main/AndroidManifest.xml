@@ -12,18 +12,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".scores.ScoresActivity"></activity>
-        <activity android:name=".help.HelpActivity" />
-        <activity android:name=".splashScreen.SplashScreenActivity">
+        <activity android:name=".view.ScoresActivity"></activity>
+        <activity android:name=".view.HelpActivity" />
+        <activity android:name=".view.SplashScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PuzzleController" />
+        <activity android:name=".view.PuzzleControllerActivity" />
         <activity
-            android:name=".MainActivity"
+            android:name=".view.MainActivity"
             android:screenOrientation="fullSensor">
             <intent-filter>
 

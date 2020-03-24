@@ -1,4 +1,4 @@
-package com.p5m.puzzledroid;
+package com.p5m.puzzledroid.view;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -25,8 +25,8 @@ import android.widget.GridView;
 
 import android.widget.Toast;
 
-import com.p5m.puzzledroid.help.HelpActivity;
-import com.p5m.puzzledroid.scores.ScoresActivity;
+import com.p5m.puzzledroid.ImageController;
+import com.p5m.puzzledroid.R;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Timber.i("Create Intent");
-                    Intent intent = new Intent(getApplicationContext(), PuzzleController.class);
+                    Intent intent = new Intent(getApplicationContext(), PuzzleControllerActivity.class);
                     intent.putExtra("assetName", files[i % files.length]);
                     startActivity(intent);
                 }
@@ -152,14 +152,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Timber.i("onActivityResult");
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Intent intent = new Intent(this, PuzzleController.class);
+            Intent intent = new Intent(this, PuzzleControllerActivity.class);
             intent.putExtra("mCurrentPhotoPath", photoPath);
             startActivity(intent);
         }
         if (requestCode == REQUEST_IMAGE_GALLERY && resultCode == RESULT_OK) {
             Uri uri = data.getData();
 
-            Intent intent = new Intent(this, PuzzleController.class);
+            Intent intent = new Intent(this, PuzzleControllerActivity.class);
             intent.putExtra("mCurrentPhotoUri", uri.toString());
             startActivity(intent);
         }

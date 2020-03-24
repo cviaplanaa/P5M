@@ -5,6 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import com.p5m.puzzledroid.view.PuzzleControllerActivity;
+
 import timber.log.Timber;
 
 import static java.lang.Math.pow;
@@ -13,9 +15,9 @@ import static java.lang.Math.sqrt;
 public class TouchListener implements View.OnTouchListener {
     private float xDelta;
     private float yDelta;
-    private PuzzleController activity;
+    private PuzzleControllerActivity activity;
 
-    public TouchListener(PuzzleController activity) {
+    public TouchListener(PuzzleControllerActivity activity) {
         Timber.i("TouchListener");
         this.activity = activity;
     }

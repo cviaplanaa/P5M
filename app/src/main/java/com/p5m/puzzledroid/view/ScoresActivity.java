@@ -1,4 +1,4 @@
-package com.p5m.puzzledroid.scores;
+package com.p5m.puzzledroid.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +12,7 @@ import com.p5m.puzzledroid.database.ScoreDao;
 import com.p5m.puzzledroid.database.ScoreDatabase;
 import com.p5m.puzzledroid.util.AppExecutors;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
@@ -21,6 +22,7 @@ import timber.log.Timber;
  */
 public class ScoresActivity extends AppCompatActivity implements View.OnClickListener {
     private List<Score> scores;
+    private TextView scoresView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +31,7 @@ public class ScoresActivity extends AppCompatActivity implements View.OnClickLis
 
         // Set the reset scores button
         findViewById(R.id.button_reset_scores).setOnClickListener(this);
+        scoresView = findViewById(R.id.scores_list);
 
         // Retrieve the scores list and then show them
         retrieveScores();
@@ -52,11 +55,10 @@ public class ScoresActivity extends AppCompatActivity implements View.OnClickLis
      * Set the scores from the database to the view.
      */
     private void showScores() {
-        TextView textView = findViewById(R.id.scores_list);
-        if (scores != null) {
-            textView.setText(Score.formatScores(scores));
+        if (scores.isEmpty()) {
+            scoresView.setText("There are no scores yet.");
         } else {
-            textView.setText("There are no scores yet.");
+            scoresView.setText(Score.formatScores(scores));
         }
     }
 
@@ -71,8 +73,9 @@ public class ScoresActivity extends AppCompatActivity implements View.OnClickLis
             @Override
             public void run() {
                 scoreDao.clear();
-                retrieveScores();
             }
         });
+        scores = new ArrayList<Score>();
+        showScores();
     }
 }
