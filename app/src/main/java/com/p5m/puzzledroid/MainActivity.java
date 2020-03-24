@@ -25,6 +25,7 @@ import android.widget.GridView;
 
 import android.widget.Toast;
 
+import com.p5m.puzzledroid.help.HelpActivity;
 import com.p5m.puzzledroid.scores.ScoresActivity;
 
 import java.io.File;
@@ -175,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.help:
-                Intent webviewIntent = new Intent(this, help.class);
+                Intent webviewIntent = new Intent(this, HelpActivity.class);
                 startActivity(webviewIntent);
                 return true;
             case R.id.scores:

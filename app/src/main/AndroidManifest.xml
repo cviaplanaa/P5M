@@ -13,8 +13,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".scores.ScoresActivity"></activity>
-        <activity android:name=".help" />
-        <activity android:name=".SplashScreen">
+        <activity android:name=".help.HelpActivity" />
+        <activity android:name=".splashScreen.SplashScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

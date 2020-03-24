@@ -1,4 +1,4 @@
-package com.p5m.puzzledroid;
+package com.p5m.puzzledroid.splashScreen;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,9 +6,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
+import com.p5m.puzzledroid.MainActivity;
+import com.p5m.puzzledroid.R;
+
 import timber.log.Timber;
 
-public class SplashScreen extends AppCompatActivity {
+/**
+ * Simple initial splash screen that lasts 3 seconds.
+ */
+public class SplashScreenActivity extends AppCompatActivity {
 
     Handler handler;
     @Override
@@ -21,7 +27,7 @@ public class SplashScreen extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent intent=new Intent(SplashScreen.this,MainActivity.class);
+                Intent intent=new Intent(SplashScreenActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }
