@@ -18,9 +18,12 @@ import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -52,6 +55,11 @@ public class PuzzleControllerActivity extends AppCompatActivity {
     // The score that will be recorded for this puzzle
     Score score;
 
+    //Create Animation
+    Animation animation;
+    ImageView imageView;
+    Bitmap puzzlePiece;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +67,7 @@ public class PuzzleControllerActivity extends AppCompatActivity {
         Timber.i("onCreate");
 
         final RelativeLayout layout = findViewById(R.id.layout);
-        final ImageView imageView = findViewById(R.id.imageView);
+        imageView = findViewById(R.id.imageView);
 
         // Get the data from the intent
         Intent intent = getIntent();
@@ -139,8 +147,8 @@ public class PuzzleControllerActivity extends AppCompatActivity {
 
     private ArrayList<PieceController> cutImage() {
         //int piecesNumber = 12;
-        int rows = 4;
-        int cols = 3;
+        int rows = 1;
+        int cols = 2;
         int piecesNumber = rows * cols;
         Timber.i("cutImage");
 
@@ -192,7 +200,7 @@ public class PuzzleControllerActivity extends AppCompatActivity {
                 piece.height = pieceHeight + offsetY;
 
                 // this bitmap will hold our final puzzle piece image
-                Bitmap puzzlePiece = Bitmap.createBitmap(pieceWidth + offsetX, pieceHeight + offsetY, Bitmap.Config.ARGB_8888);
+                puzzlePiece = Bitmap.createBitmap(pieceWidth + offsetX, pieceHeight + offsetY, Bitmap.Config.ARGB_8888);
 
                 // draw path
                 int bumpSize = pieceHeight / 4;
@@ -328,13 +336,29 @@ public class PuzzleControllerActivity extends AppCompatActivity {
             }
         }
         if (allUnmovable) {
-            onFinishPuzzle();
+            //Show animation before finishing the puzzle
+            animation = AnimationUtils.loadAnimation(PuzzleControllerActivity.this,R.anim.bounce);
+            imageView.bringToFront();
+            //Set Alpha to avoid opacity
+            imageView.setAlpha((float) 1.0);
+            imageView.startAnimation(animation);
+
+            //delay before calling onFinish
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    onFinishPuzzle();
+                }
+            }, 1500);
+
+
         }
     }
     /**
      * Called upon finishing the puzzle. Store the score and exit the view.
      */
     private void onFinishPuzzle() {
+
         Timber.i("onFinishPuzzle");
         score.setFinishTime(Calendar.getInstance().getTime());
         // Calculate the seconds between the two dates (the units are milliseconds)

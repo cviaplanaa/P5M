@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/(ICB0_P8) Desarrollo de aplicaciones móviles nativas-P5M-PuzzleDroid.iml" filepath="$PROJECT_DIR$/(ICB0_P8) Desarrollo de aplicaciones móviles nativas-P5M-PuzzleDroid.iml" group="PuzzleDroid" />
       <module fileurl="file://$PROJECT_DIR$/app/(ICB0_P8) Desarrollo de aplicaciones móviles nativas-P5M-app.iml" filepath="$PROJECT_DIR$/app/(ICB0_P8) Desarrollo de aplicaciones móviles nativas-P5M-app.iml" group="PuzzleDroid/app" />
+      <module fileurl="file://$PROJECT_DIR$/Desktop-P5M-PuzzleDroid.iml" filepath="$PROJECT_DIR$/Desktop-P5M-PuzzleDroid.iml" group="PuzzleDroid" />
+      <module fileurl="file://$PROJECT_DIR$/app/Desktop-P5M-app.iml" filepath="$PROJECT_DIR$/app/Desktop-P5M-app.iml" group="PuzzleDroid/app" />
       <module fileurl="file://$PROJECT_DIR$/P5M-PuzzleDroid.iml" filepath="$PROJECT_DIR$/P5M-PuzzleDroid.iml" group="PuzzleDroid" />
       <module fileurl="file://$PROJECT_DIR$/app/P5M-app.iml" filepath="$PROJECT_DIR$/app/P5M-app.iml" group="PuzzleDroid/app" />
       <module fileurl="file://$PROJECT_DIR$/PuzzleDroid.iml" filepath="$PROJECT_DIR$/PuzzleDroid.iml" group="PuzzleDroid" />

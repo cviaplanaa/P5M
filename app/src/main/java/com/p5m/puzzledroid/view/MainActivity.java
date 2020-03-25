@@ -16,10 +16,13 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
@@ -34,6 +37,7 @@ import java.text.SimpleDateFormat;
 
 import java.util.Date;
 
+import androidx.core.content.FileProvider;
 import timber.log.Timber;
 
 
@@ -43,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE = 2;
     static final int REQUEST_PERMISSION_READ_EXTERNAL_STORAGE = 3;
     static final int REQUEST_IMAGE_GALLERY = 4;
+
 
     String photoPath;
 
@@ -73,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onCameraClick(View view) {
-        AlertDialog.Builder camAlert = new AlertDialog.Builder(MainActivity.this);
+/*        AlertDialog.Builder camAlert = new AlertDialog.Builder(MainActivity.this);
         camAlert.setTitle("Próximamente");
         camAlert.setMessage("Esta función estará lista en el segundo producto");
         camAlert.setPositiveButton("De acuerdo", new DialogInterface.OnClickListener() {
@@ -82,22 +87,24 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        camAlert.show();
-        /*Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        camAlert.show();*/
+
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
             try {
                 photoFile = createImageFile();
+                if (photoFile != null) {
+                    Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".fileprovider", photoFile);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                    startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+                }
             } catch (IOException e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG);
             }
 
-            if (photoFile != null) {
-                Uri photoUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".fileprovider", photoFile);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-                startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
-            }
-        }*/
+
+        }
     }
 
     public void onGalleryClick(View view) {
