@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     public void onCameraClick(View view) {
 /*        AlertDialog.Builder camAlert = new AlertDialog.Builder(MainActivity.this);
         camAlert.setTitle("Próximamente");
@@ -127,7 +128,8 @@ public class MainActivity extends AppCompatActivity {
             // Create an image file name
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             String imageFileName = "JPEG_" + timeStamp + "_";
-            File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            //Picture is saved in download because pictures and DCIM folders are not instantly reacheable from Gallery
+            File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             File image = File.createTempFile(
                     imageFileName,  /* prefix */
                     ".jpg",         /* suffix */
@@ -162,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, PuzzleControllerActivity.class);
             intent.putExtra("mCurrentPhotoPath", photoPath);
             startActivity(intent);
+
         }
         if (requestCode == REQUEST_IMAGE_GALLERY && resultCode == RESULT_OK) {
             Uri uri = data.getData();
