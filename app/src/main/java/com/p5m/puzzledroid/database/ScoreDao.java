@@ -34,4 +34,7 @@ public interface ScoreDao {
 
     @Query("SELECT * FROM scores ORDER BY id DESC")
     List<Score> getAllScores();
+
+    @Query("SELECT * FROM scores ORDER BY id ASC LIMIT 1")
+    List<Score> getLastScore();
 }

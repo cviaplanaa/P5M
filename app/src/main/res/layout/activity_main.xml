@@ -28,6 +28,7 @@
     </GridView>
 
     <Button
+
         android:id="@+id/galleryButton"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="0dp"

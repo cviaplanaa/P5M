@@ -60,6 +60,9 @@ public class PuzzleControllerActivity extends AppCompatActivity {
     ImageView imageView;
     Bitmap puzzlePiece;
 
+    public final static String EXTRA_MESSAGE_LAST_SCORE = "Desktop-P5M-app.lastScore";
+    public final static String EXTRA_MESSAGE_RECORD = "Desktop-P5M-app.record";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -147,8 +150,8 @@ public class PuzzleControllerActivity extends AppCompatActivity {
 
     private ArrayList<PieceController> cutImage() {
         //int piecesNumber = 12;
-        int rows = 4;
-        int cols = 3;
+        int rows = 3;
+        int cols = 4;
         int piecesNumber = rows * cols;
         Timber.i("cutImage");
 
@@ -358,7 +361,6 @@ public class PuzzleControllerActivity extends AppCompatActivity {
      * Called upon finishing the puzzle. Store the score and exit the view.
      */
     private void onFinishPuzzle() {
-
         Timber.i("onFinishPuzzle");
         score.setFinishTime(Calendar.getInstance().getTime());
         // Calculate the seconds between the two dates (the units are milliseconds)
@@ -374,6 +376,10 @@ public class PuzzleControllerActivity extends AppCompatActivity {
                 Timber.i("ScoreInfo: %s", scores.toString());
             }
         });
+        //Send intent to the app notification to show the last score
+        Intent reply = new Intent();
+        reply.putExtra(EXTRA_MESSAGE_LAST_SCORE, Integer.toString(score.getScoreSeconds()));
+        setResult(RESULT_OK, reply);
         // Exit the view
         finish();
     }

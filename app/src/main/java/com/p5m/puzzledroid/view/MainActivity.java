@@ -5,18 +5,31 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.Layout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,6 +39,7 @@ import android.view.animation.Animation;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.p5m.puzzledroid.ImageController;
@@ -51,11 +65,22 @@ public class MainActivity extends AppCompatActivity {
 
     String photoPath;
 
+    //Notification management
+   private static final String PRIMARY_CHANNEL_ID = "Desktop-P5M-app.ChannelID";
+   private static final int NOTIFICATION_ID = 0;
+   private static final String ACTION_UPDATE_NOTIFICATION = "Desktop-P5M-app.ACTION_UPDATE_NOTIFICATION";
+   private NotificationManager miNotifyManager;
+   private NotificationReceiver miReceiver = new NotificationReceiver();
+   int lastScore, recordScore;
+   private static final int PUZZLE_CONTROLLER_ID = 5;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Timber.i("OnCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        createNotificationChannel();
+        registerReceiver(miReceiver, new IntentFilter(ACTION_UPDATE_NOTIFICATION));
 
         AssetManager am = getAssets();
         try {
@@ -69,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                     Timber.i("Create Intent");
                     Intent intent = new Intent(getApplicationContext(), PuzzleControllerActivity.class);
                     intent.putExtra("assetName", files[i % files.length]);
-                    startActivity(intent);
+                    startActivityForResult(intent, PUZZLE_CONTROLLER_ID);
                 }
             });
         } catch (IOException e) {
@@ -159,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         Timber.i("onActivityResult");
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Intent intent = new Intent(this, PuzzleControllerActivity.class);
@@ -172,6 +198,11 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, PuzzleControllerActivity.class);
             intent.putExtra("mCurrentPhotoUri", uri.toString());
             startActivity(intent);
+        }
+
+        if (requestCode == PUZZLE_CONTROLLER_ID && resultCode == RESULT_OK) {
+            lastScore = Integer.parseInt(data.getStringExtra(PuzzleControllerActivity.EXTRA_MESSAGE_LAST_SCORE));
+            sendNotification();
         }
     }
 
@@ -196,5 +227,86 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-}
+    public  void createNotificationChannel() {
+        miNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
+        //para que en las versiones antiguas siga funcinando
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            //Crearemos el canal
+            NotificationChannel nChannel = new NotificationChannel(PRIMARY_CHANNEL_ID,
+                    "¡Nueva puntuación!", NotificationManager.IMPORTANCE_HIGH);
+            nChannel.enableLights(true);
+            nChannel.setLightColor(Color.RED);
+            nChannel.enableVibration(true);
+            nChannel.setDescription("Tu nueva puntuación ha sido de: ");
+            miNotifyManager.createNotificationChannel(nChannel);
+        }
+    }
+
+/*    public void notificacionPersonalizada(View view) {
+
+        RemoteViews rmViewsSmall = new RemoteViews(getPackageName(), R.layout.customsmall);
+        RemoteViews rmViewsGrande = new RemoteViews(getPackageName(), R.layout.customnotification);
+
+        rmViewsGrande.setTextViewText(R.id.tvCustom1, "¡Nueva puntuación!");
+        rmViewsGrande.setTextViewText(R.id.tvCustom2, "Tu nueva puntuación ha sido de: ");
+
+        Notification noti = new NotificationCompat.Builder(getApplicationContext(),
+                PRIMARY_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setCustomContentView(rmViewsSmall)
+                .setCustomBigContentView(rmViewsGrande)
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                .build();
+        miNotifyManager.notify(1, noti);
+    }*/
+
+    public void sendNotification() {
+        Intent updateIntent = new Intent(ACTION_UPDATE_NOTIFICATION);
+        PendingIntent pIntent = PendingIntent.getBroadcast(
+                this, NOTIFICATION_ID, updateIntent, PendingIntent.FLAG_ONE_SHOT);
+
+
+        NotificationCompat.Builder nBuilder = getNotificationBuilder();
+
+        nBuilder.addAction(R.drawable.ic_notification, "Ver puntuación", pIntent);
+        miNotifyManager.notify(NOTIFICATION_ID, nBuilder.build());
+
+    }
+
+    private NotificationCompat.Builder getNotificationBuilder(){
+        Intent notiIntent = new Intent(this, MainActivity.class);
+        //PendingIntent es como un intent normal pero lo dejas abierto y ya se ejecutará cuando le llames
+        PendingIntent pIntent = PendingIntent.getActivity(this, NOTIFICATION_ID,
+                notiIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+        NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(this, PRIMARY_CHANNEL_ID)
+                .setContentTitle("¡Nueva puntuación!")
+                .setContentText("Tu nueva puntuación ha sido de: ")
+                .setContentIntent(pIntent) //al dar click abrirá lo que esté en pIntent
+                .setAutoCancel(true) //al dar click cierra la notificacion
+                .setSmallIcon(R.drawable.ic_notification);
+        return notifyBuilder;
+    }
+
+    public void updateNotification(){
+        //Bitmap androidImage = BitmapFactory.decodeResource(getResources(), R.drawable.bolivia);
+        NotificationCompat.Builder nBuilder = getNotificationBuilder();
+        nBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(Integer.toString(lastScore)+" segundos"));
+
+        miNotifyManager.notify(NOTIFICATION_ID, nBuilder.build());
+    }
+
+    public class NotificationReceiver extends BroadcastReceiver {
+        public NotificationReceiver(){}
+
+        @Override
+        public void onReceive(Context context, Intent intent){
+            //Actualizaremos la notificacion
+            updateNotification();
+        }
+    }
+
+
+}
