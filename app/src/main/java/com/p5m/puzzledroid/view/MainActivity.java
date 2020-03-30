@@ -14,10 +14,14 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ReceiverCallNotAllowedException;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 
@@ -28,6 +32,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.CalendarContract;
 import android.provider.MediaStore;
 import android.text.Layout;
 import android.util.Log;
@@ -47,11 +52,15 @@ import com.p5m.puzzledroid.R;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import androidx.core.content.FileProvider;
+
 import timber.log.Timber;
 
 
@@ -66,13 +75,13 @@ public class MainActivity extends AppCompatActivity {
     String photoPath;
 
     //Notification management
-   private static final String PRIMARY_CHANNEL_ID = "Desktop-P5M-app.ChannelID";
-   private static final int NOTIFICATION_ID = 0;
-   private static final String ACTION_UPDATE_NOTIFICATION = "Desktop-P5M-app.ACTION_UPDATE_NOTIFICATION";
-   private NotificationManager miNotifyManager;
-   private NotificationReceiver miReceiver = new NotificationReceiver();
-   int lastScore, recordScore;
-   private static final int PUZZLE_CONTROLLER_ID = 5;
+    private static final String PRIMARY_CHANNEL_ID = "Desktop-P5M-app.ChannelID";
+    private static final int NOTIFICATION_ID = 0;
+    private static final String ACTION_UPDATE_NOTIFICATION = "Desktop-P5M-app.ACTION_UPDATE_NOTIFICATION";
+    private NotificationManager miNotifyManager;
+    private NotificationReceiver miReceiver = new NotificationReceiver();
+    int lastScore, recordScore;
+    private static final int PUZZLE_CONTROLLER_ID = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
         AssetManager am = getAssets();
         try {
-            final String[] files  = am.list("img");
+            final String[] files = am.list("img");
 
             GridView grid = findViewById(R.id.grid);
             grid.setAdapter(new ImageController(this));
@@ -136,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
     public void onGalleryClick(View view) {
         Timber.i("onGalleryClick");
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSION_READ_EXTERNAL_STORAGE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSION_READ_EXTERNAL_STORAGE);
         } else {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("image/*");
@@ -227,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public  void createNotificationChannel() {
+    public void createNotificationChannel() {
         miNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         //para que en las versiones antiguas siga funcinando
@@ -274,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private NotificationCompat.Builder getNotificationBuilder(){
+    private NotificationCompat.Builder getNotificationBuilder() {
         Intent notiIntent = new Intent(this, MainActivity.class);
         //PendingIntent es como un intent normal pero lo dejas abierto y ya se ejecutará cuando le llames
         PendingIntent pIntent = PendingIntent.getActivity(this, NOTIFICATION_ID,
@@ -290,19 +299,20 @@ public class MainActivity extends AppCompatActivity {
         return notifyBuilder;
     }
 
-    public void updateNotification(){
+    public void updateNotification() {
         //Bitmap androidImage = BitmapFactory.decodeResource(getResources(), R.drawable.bolivia);
         NotificationCompat.Builder nBuilder = getNotificationBuilder();
-        nBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(Integer.toString(lastScore)+" segundos"));
+        nBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(Integer.toString(lastScore) + " segundos"));
 
         miNotifyManager.notify(NOTIFICATION_ID, nBuilder.build());
     }
 
     public class NotificationReceiver extends BroadcastReceiver {
-        public NotificationReceiver(){}
+        public NotificationReceiver() {
+        }
 
         @Override
-        public void onReceive(Context context, Intent intent){
+        public void onReceive(Context context, Intent intent) {
             //Actualizaremos la notificacion
             updateNotification();
         }

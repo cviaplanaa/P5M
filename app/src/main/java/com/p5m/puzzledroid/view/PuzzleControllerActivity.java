@@ -19,6 +19,7 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.CalendarContract;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -38,9 +39,11 @@ import com.p5m.puzzledroid.util.AppExecutors;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -380,8 +383,27 @@ public class PuzzleControllerActivity extends AppCompatActivity {
         Intent reply = new Intent();
         reply.putExtra(EXTRA_MESSAGE_LAST_SCORE, Integer.toString(score.getScoreSeconds()));
         setResult(RESULT_OK, reply);
+        // Insert the new score to the calendar
+        insertToCalendar();
         // Exit the view
         finish();
+    }
+
+    /**
+     * Insert the new score to the calendar.
+     */
+    private void insertToCalendar() {
+        Date finishTime = score.getFinishTime();
+        Intent intent = new Intent(Intent.ACTION_INSERT)
+                .setData(CalendarContract.Events.CONTENT_URI)
+                .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, finishTime.getTime())
+                .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, finishTime.getTime())
+                .putExtra(CalendarContract.Events.TITLE, "Puzzledroid Score")
+                .putExtra(CalendarContract.Events.HAS_ALARM, false)
+                .putExtra(CalendarContract.Events.DESCRIPTION, "Puzzle: " +
+                        score.getPuzzleName() + "\n" +
+                        "Score: " + score.getScoreSeconds() + " seconds.");
+        startActivity(intent);
     }
 
     private void setImageFromPath(String mCurrentPhotoPath, ImageView imageView) {
