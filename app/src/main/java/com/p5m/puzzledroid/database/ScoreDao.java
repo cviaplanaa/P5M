@@ -37,4 +37,7 @@ public interface ScoreDao {
 
     @Query("SELECT * FROM scores ORDER BY id ASC LIMIT 1")
     List<Score> getLastScore();
+
+    @Query("SELECT * FROM scores ORDER BY score_seconds ASC LIMIT 3")
+    List<Score> getTopThreeScores();
 }
