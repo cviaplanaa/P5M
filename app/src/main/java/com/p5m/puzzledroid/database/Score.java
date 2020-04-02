@@ -25,7 +25,7 @@ public class Score {
     private int scoreSeconds;
 
     /**
-     * Constructor necessary for Room.
+     * Constructor, necessary for Room.
      * @param id
      * @param puzzleName
      * @param initialTime

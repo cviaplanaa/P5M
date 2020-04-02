@@ -10,17 +10,23 @@ import androidx.room.TypeConverters;
 /**
  * Class that represents the SQLite database.
  */
-@Database(entities = Score.class, exportSchema = false, version = 5)
+@Database(
+        entities = {
+                Score.class
+        },
+        exportSchema = false,
+        version = 8
+)
 @TypeConverters({Converters.class})
-public abstract class ScoreDatabase extends RoomDatabase {
+public abstract class PuzzledroidDatabase extends RoomDatabase {
     public abstract ScoreDao scoreDao();
-    private static final String DB_NAME = "score_db";
-    private static ScoreDatabase instance;
+    private static final String DB_NAME = "puzzledroid_db";
+    private static PuzzledroidDatabase instance;
 
-    public static synchronized ScoreDatabase getInstance(Context context) {
+    public static synchronized PuzzledroidDatabase getInstance(Context context) {
         if (instance == null) {
             instance = Room.databaseBuilder(context.getApplicationContext(),
-                    ScoreDatabase.class, DB_NAME)
+                    PuzzledroidDatabase.class, DB_NAME)
                     .fallbackToDestructiveMigration()
                     .build();
         }
