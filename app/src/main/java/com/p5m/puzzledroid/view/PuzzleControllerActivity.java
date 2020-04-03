@@ -156,10 +156,10 @@ public class PuzzleControllerActivity extends AppCompatActivity {
 
     private ArrayList<PieceController> cutImage() {
         //int piecesNumber = 12;
-//        int rows = 3;
-//        int cols = 4;
-        int rows = 1;
-        int cols = 1;
+        int rows = 3;
+        int cols = 4;
+//        int rows = 1;
+//        int cols = 1;
         int piecesNumber = rows * cols;
         Timber.i("cutImage");
 
