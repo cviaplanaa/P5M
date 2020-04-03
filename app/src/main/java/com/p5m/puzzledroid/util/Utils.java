@@ -13,7 +13,6 @@ public abstract class Utils {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         return calendar;
-
     }
 
     // Convert Calendar to Date

@@ -11,12 +11,14 @@ public class UnsolvedImages {
 
     private static UnsolvedImages instance = null;
     private List<String> unsolvedImages;
+    private int numberOfImages;
 
     /**
      * Private constructor restricted to this class.
       */
     private UnsolvedImages() {
         unsolvedImages = new ArrayList<>();
+        numberOfImages = 0;
     }
 
     /**
@@ -50,7 +52,27 @@ public class UnsolvedImages {
     }
 
     /**
-     * Getter and setter.
+     * Return the number of completed images.
+     */
+    public static int getNumberOfSolvedImages() {
+        UnsolvedImages unsolvedImages = getInstance();
+        return unsolvedImages.getNumberOfImages() - unsolvedImages.getUnsolvedImages().size() + 1;
+    }
+
+    /**
+     * To display them better.
+     * @return
+     */
+    @Override
+    public String toString() {
+        return "UnsolvedImages{" +
+                "unsolvedImages=" + unsolvedImages +
+                ", numberOfImages=" + numberOfImages +
+                '}';
+    }
+
+    /**
+     * Getters and setters.
      * @return
      */
     public List<String> getUnsolvedImages() {
@@ -59,5 +81,17 @@ public class UnsolvedImages {
 
     public void setUnsolvedImages(List<String> unsolvedImages) {
         this.unsolvedImages = unsolvedImages;
+    }
+
+    public static void setInstance(UnsolvedImages instance) {
+        UnsolvedImages.instance = instance;
+    }
+
+    public int getNumberOfImages() {
+        return numberOfImages;
+    }
+
+    public void setNumberOfImages(int numberOfImages) {
+        this.numberOfImages = numberOfImages;
     }
 }

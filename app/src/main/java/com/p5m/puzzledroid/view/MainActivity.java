@@ -47,6 +47,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import androidx.core.content.FileProvider;
@@ -87,11 +88,12 @@ public class MainActivity extends AppCompatActivity {
         try {
             final String[] files = am.list("img");
 
-            // Add all 9 images to the list
-            List<String> totalImages = Arrays.asList(files);
-//            Utils.unSolvedImages = totalImages;
-            UnsolvedImages.getInstance().setUnsolvedImages(totalImages);
-            Timber.i("Unsolved images list filled: " + totalImages.toString());
+            // Add all 9 images to the list. A LinkedList must be used since it's mutable.
+            List<String> totalImages = new LinkedList<>(Arrays.asList(files));
+            UnsolvedImages unsolvedImages = UnsolvedImages.getInstance();
+            unsolvedImages.setUnsolvedImages(totalImages);
+            unsolvedImages.setNumberOfImages(totalImages.size());
+            Timber.i("Unsolved images list filled: " + unsolvedImages.toString());
 
             GridView grid = findViewById(R.id.grid);
             grid.setAdapter(new ImageController(this));
@@ -127,6 +129,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             String randomImage = UnsolvedImages.getRandomUnsolvedImage();
             Timber.i("Random Image: " + randomImage);
+            Toast.makeText(getApplicationContext(),
+                    "Current random image: " + UnsolvedImages.getNumberOfSolvedImages() + "/" +
+                    UnsolvedImages.getInstance().getNumberOfImages() + ".",
+                    Toast.LENGTH_LONG).show();
             Intent intent = new Intent(getApplicationContext(), PuzzleControllerActivity.class);
             intent.putExtra("assetName", randomImage);
             selectedOrRandom = "random";
