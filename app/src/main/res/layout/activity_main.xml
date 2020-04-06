@@ -67,6 +67,7 @@
         app:layout_constraintEnd_toStartOf="@+id/cameraButton"
         app:layout_constraintStart_toEndOf="@+id/galleryButton" />
 
+<<<<<<< HEAD
     <Button
         android:id="@+id/audioOff"
         style="@style/Widget.AppCompat.Button.Colored"
@@ -86,5 +87,7 @@
         app:layout_constraintTop_toBottomOf="@+id/grid" />
 
 
+=======
+>>>>>>> 5a3a4efb6acf98ec1958a592d6242f2325f10da9
 </androidx.constraintlayout.widget.ConstraintLayout>
 
