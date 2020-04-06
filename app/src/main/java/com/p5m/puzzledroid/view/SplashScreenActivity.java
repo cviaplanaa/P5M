@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.p5m.puzzledroid.R;
 import com.p5m.puzzledroid.database.Score;
 import com.p5m.puzzledroid.database.ScoreDao;
-import com.p5m.puzzledroid.database.ScoreDatabase;
+import com.p5m.puzzledroid.database.PuzzledroidDatabase;
 import com.p5m.puzzledroid.util.AppExecutors;
 
 import java.util.List;
@@ -40,7 +40,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         },3000);
 
         // Display the top three scores
-        final ScoreDao scoreDao = ScoreDatabase.getInstance(getApplicationContext()).scoreDao();
+        final ScoreDao scoreDao = PuzzledroidDatabase.getInstance(getApplicationContext()).scoreDao();
         // Run the database access code on another thread/scope
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override

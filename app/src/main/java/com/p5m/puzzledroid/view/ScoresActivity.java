@@ -3,19 +3,16 @@ package com.p5m.puzzledroid.view;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.p5m.puzzledroid.R;
+import com.p5m.puzzledroid.database.PuzzledroidDatabase;
 import com.p5m.puzzledroid.database.Score;
 import com.p5m.puzzledroid.database.ScoreDao;
-import com.p5m.puzzledroid.database.ScoreDatabase;
 import com.p5m.puzzledroid.util.AppExecutors;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import timber.log.Timber;
 
 /**
  * View that displays the user scores.
@@ -41,7 +38,7 @@ public class ScoresActivity extends AppCompatActivity implements View.OnClickLis
      * Retrieve the scores form the database.
      */
     private void retrieveScores() {
-        final ScoreDao scoreDao = ScoreDatabase.getInstance(this).scoreDao();
+        final ScoreDao scoreDao = PuzzledroidDatabase.getInstance(this).scoreDao();
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
@@ -68,7 +65,7 @@ public class ScoresActivity extends AppCompatActivity implements View.OnClickLis
      */
     @Override
     public void onClick(View v) {
-        final ScoreDao scoreDao = ScoreDatabase.getInstance(this).scoreDao();
+        final ScoreDao scoreDao = PuzzledroidDatabase.getInstance(this).scoreDao();
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {

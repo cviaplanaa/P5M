@@ -1,5 +1,6 @@
 package com.p5m.puzzledroid;
 
+import android.media.MediaPlayer;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,12 +23,15 @@ public class TouchListener implements View.OnTouchListener {
         this.activity = activity;
     }
 
+
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         Timber.i("onTouch");
         float x = motionEvent.getRawX();
         float y = motionEvent.getRawY();
         final double tolerance = sqrt(pow(view.getWidth(), 2) + pow(view.getHeight(), 2)) / 10;
+        MediaPlayer move;
+        MediaPlayer moveready;
 
         PieceController piece = (PieceController) view;
         if (!piece.movable) {
@@ -42,9 +46,13 @@ public class TouchListener implements View.OnTouchListener {
                 piece.bringToFront();
                 break;
             case MotionEvent.ACTION_MOVE:
+                //sound MOV
+                move = MediaPlayer.create(this.activity, R.raw.move);
+                move.start();
                 lParams.leftMargin = (int) (x - xDelta);
                 lParams.topMargin = (int) (y - yDelta);
                 view.setLayoutParams(lParams);
+
                 break;
             case MotionEvent.ACTION_UP:
                 int xDiff = StrictMath.abs(piece.x - lParams.leftMargin);
@@ -56,6 +64,10 @@ public class TouchListener implements View.OnTouchListener {
                     piece.movable = false;
                     sendViewToBack(piece);
                     activity.checkEnd();
+                    //sound de mov ok
+                    moveready = MediaPlayer.create(this.activity, R.raw.pieza_ok);
+                    moveready.start();
+
                 }
                 break;
         }

@@ -16,6 +16,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,17 +30,20 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.bumptech.glide.util.Util;
 import com.p5m.puzzledroid.PieceController;
+import com.p5m.puzzledroid.PuzzleDroidApplication;
 import com.p5m.puzzledroid.R;
 import com.p5m.puzzledroid.TouchListener;
+import com.p5m.puzzledroid.database.PuzzledroidDatabase;
 import com.p5m.puzzledroid.database.Score;
 import com.p5m.puzzledroid.database.ScoreDao;
-import com.p5m.puzzledroid.database.ScoreDatabase;
 import com.p5m.puzzledroid.util.AppExecutors;
+import com.p5m.puzzledroid.util.UnsolvedImages;
+import com.p5m.puzzledroid.util.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -55,19 +59,26 @@ public class PuzzleControllerActivity extends AppCompatActivity {
     ArrayList<PieceController> pieces;
     String photoPath;
     String photoUri;
+    String assetName;
     // The score that will be recorded for this puzzle
     Score score;
 
-    //Create Animation
+    // Create Animation
     Animation animation;
     ImageView imageView;
     Bitmap puzzlePiece;
+
+    //Audio
+    MediaPlayer mp;
 
     public final static String EXTRA_MESSAGE_LAST_SCORE = "Desktop-P5M-app.lastScore";
     public final static String EXTRA_MESSAGE_RECORD = "Desktop-P5M-app.record";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mp = PuzzleDroidApplication.getInstance().mp;
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_puzzle);
         Timber.i("onCreate");
@@ -79,7 +90,7 @@ public class PuzzleControllerActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String intentExtra = intent.getStringExtra("assetName");
         Timber.i(intentExtra);
-        final String assetName = intent.getStringExtra("assetName");
+        assetName = intent.getStringExtra("assetName");
         photoPath = intent.getStringExtra("mCurrentPhotoPath");
         photoUri = intent.getStringExtra("mCurrentPhotoUri");
 
@@ -115,6 +126,15 @@ public class PuzzleControllerActivity extends AppCompatActivity {
         score = new Score();
         score.setPuzzleName(intentExtra);
         score.setInitialTime(Calendar.getInstance().getTime());
+    }
+    protected void onPause(){
+        super.onPause();
+        mp.pause();
+    }
+
+    protected void onResume(){
+        super.onResume();
+        mp.start();
     }
 
     private void setImageFromAssets(String assetName, ImageView imageView) {
@@ -155,6 +175,8 @@ public class PuzzleControllerActivity extends AppCompatActivity {
         //int piecesNumber = 12;
         int rows = 3;
         int cols = 4;
+//        int rows = 1;
+//        int cols = 1;
         int piecesNumber = rows * cols;
         Timber.i("cutImage");
 
@@ -369,7 +391,7 @@ public class PuzzleControllerActivity extends AppCompatActivity {
         // Calculate the seconds between the two dates (the units are milliseconds)
         long difference = score.getFinishTime().getTime() - score.getInitialTime().getTime();
         score.setScoreSeconds((int) (difference / 1000));
-        final ScoreDao scoreDao = ScoreDatabase.getInstance(this).scoreDao();
+        final ScoreDao scoreDao = PuzzledroidDatabase.getInstance(this).scoreDao();
         // Run the database access code on another thread/scope
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
@@ -385,6 +407,13 @@ public class PuzzleControllerActivity extends AppCompatActivity {
         setResult(RESULT_OK, reply);
         // Insert the new score to the calendar
         insertToCalendar();
+
+        // If the puzzle was created by the random action, remove it from the unsolved images
+        if (MainActivity.selectedOrRandom == "random") {
+            UnsolvedImages.removeUnsolvedImage(assetName);
+            Timber.i("Removed unsolved image: " + assetName);
+        }
+
         // Exit the view
         finish();
     }

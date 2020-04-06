@@ -19,6 +19,7 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,18 +30,28 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
 
 import android.widget.Toast;
 
 import com.p5m.puzzledroid.ImageController;
+import com.p5m.puzzledroid.PuzzleDroidApplication;
 import com.p5m.puzzledroid.R;
+import com.p5m.puzzledroid.database.PuzzledroidDatabase;
+import com.p5m.puzzledroid.util.AppExecutors;
+import com.p5m.puzzledroid.util.UnsolvedImages;
+import com.p5m.puzzledroid.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import androidx.core.content.FileProvider;
 
@@ -54,6 +65,13 @@ public class MainActivity extends AppCompatActivity {
     static final int REQUEST_PERMISSION_READ_EXTERNAL_STORAGE = 3;
     static final int REQUEST_IMAGE_GALLERY = 4;
 
+    //Audio
+    MediaPlayer mp;
+    Button audioOff;
+
+
+    // "random" or "selected". For the PuzzleControllerActivity to know how the puzzle started
+    public static String selectedOrRandom;
 
     String photoPath;
 
@@ -73,10 +91,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         createNotificationChannel();
         registerReceiver(miReceiver, new IntentFilter(ACTION_UPDATE_NOTIFICATION));
-
+        mp = PuzzleDroidApplication.getInstance().mp;
         AssetManager am = getAssets();
         try {
             final String[] files = am.list("img");
+
+            // Add all 9 images to the list. A LinkedList must be used since it's mutable.
+            List<String> totalImages = new LinkedList<>(Arrays.asList(files));
+            UnsolvedImages unsolvedImages = UnsolvedImages.getInstance();
+            unsolvedImages.setUnsolvedImages(totalImages);
+            unsolvedImages.setNumberOfImages(totalImages.size());
+            Timber.i("Unsolved images list filled: " + unsolvedImages.toString());
 
             GridView grid = findViewById(R.id.grid);
             grid.setAdapter(new ImageController(this));
@@ -85,7 +110,11 @@ public class MainActivity extends AppCompatActivity {
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Timber.i("Create Intent");
                     Intent intent = new Intent(getApplicationContext(), PuzzleControllerActivity.class);
-                    intent.putExtra("assetName", files[i % files.length]);
+                    int index = i % files.length;
+                    String image = files[index];
+                    Timber.i("Image: " + image +", Index: " + index);
+                    intent.putExtra("assetName", image);
+                    selectedOrRandom = "selected";
                     startActivityForResult(intent, PUZZLE_CONTROLLER_ID);
                 }
             });
@@ -93,7 +122,56 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT);
         }
     }
+    //Pause and Resume music (en segundo plano)
 
+    protected void onPause(){
+        super.onPause();
+        mp.pause();
+    }
+
+    protected void onResume(){
+        super.onResume();
+        mp.start();
+    }
+    public void onAudioClick(View view) {
+        audioOff = (Button)findViewById(R.id.audioOff);
+        audioOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mp != null && mp.isPlaying()) {
+                    mp.pause();
+                }
+                else{
+                    mp.start();
+                }
+            }
+        });
+    }
+
+    /**
+     * Make a puzzle of one of the unsolved images.
+     * @param view
+     */
+    public void onRandomClick(View view) {
+        Timber.i("onRandomClick");
+        List<String> unsolvedImages = UnsolvedImages.getInstance().getUnsolvedImages();
+        if (unsolvedImages.isEmpty()) {
+            Toast.makeText(getApplicationContext(),
+                    "You have completed all the images.",
+                    Toast.LENGTH_LONG).show();
+        } else {
+            String randomImage = UnsolvedImages.getRandomUnsolvedImage();
+            Timber.i("Random Image: " + randomImage);
+            Toast.makeText(getApplicationContext(),
+                    "Current random image: " + UnsolvedImages.getNumberOfSolvedImages() + "/" +
+                    UnsolvedImages.getInstance().getNumberOfImages() + ".",
+                    Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(getApplicationContext(), PuzzleControllerActivity.class);
+            intent.putExtra("assetName", randomImage);
+            selectedOrRandom = "random";
+            startActivityForResult(intent, PUZZLE_CONTROLLER_ID);
+        }
+    }
 
     public void onCameraClick(View view) {
 /*        AlertDialog.Builder camAlert = new AlertDialog.Builder(MainActivity.this);
@@ -120,8 +198,6 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG);
             }
-
-
         }
     }
 
