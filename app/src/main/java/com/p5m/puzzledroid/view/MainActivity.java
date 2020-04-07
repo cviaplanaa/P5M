@@ -65,14 +65,10 @@ public class MainActivity extends AppCompatActivity {
     static final int REQUEST_PERMISSION_READ_EXTERNAL_STORAGE = 3;
     static final int REQUEST_IMAGE_GALLERY = 4;
 
-<<<<<<< HEAD
     //Audio
     MediaPlayer mp;
     Button audioOff;
 
-
-=======
->>>>>>> 5a3a4efb6acf98ec1958a592d6242f2325f10da9
     // "random" or "selected". For the PuzzleControllerActivity to know how the puzzle started
     public static String selectedOrRandom;
 
@@ -127,7 +123,6 @@ public class MainActivity extends AppCompatActivity {
     }
     //Pause and Resume music (en segundo plano)
 
-<<<<<<< HEAD
     protected void onPause(){
         super.onPause();
         mp.pause();
@@ -152,8 +147,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-=======
->>>>>>> 5a3a4efb6acf98ec1958a592d6242f2325f10da9
     /**
      * Make a puzzle of one of the unsolved images.
      * @param view

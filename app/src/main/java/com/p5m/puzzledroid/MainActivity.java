@@ -30,6 +30,9 @@ import android.widget.GridView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import com.p5m.puzzledroid.view.HelpActivity;
+import com.p5m.puzzledroid.view.PuzzleControllerActivity;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -63,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Intent intent = new Intent(getApplicationContext(), PuzzleController.class);
+                    Intent intent = new Intent(getApplicationContext(), PuzzleControllerActivity.class);
                     intent.putExtra("assetName", files[i % files.length]);
                     startActivity(intent);
                 }
@@ -149,14 +152,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Intent intent = new Intent(this, PuzzleController.class);
+            Intent intent = new Intent(this, PuzzleControllerActivity.class);
             intent.putExtra("mCurrentPhotoPath", photoPath);
             startActivity(intent);
         }
         if (requestCode == REQUEST_IMAGE_GALLERY && resultCode == RESULT_OK) {
             Uri uri = data.getData();
 
-            Intent intent = new Intent(this, PuzzleController.class);
+            Intent intent = new Intent(this, PuzzleControllerActivity.class);
             intent.putExtra("mCurrentPhotoUri", uri.toString());
             startActivity(intent);
         }
@@ -173,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.help:
-                Intent webviewIntent = new Intent(this, help.class);
+                Intent webviewIntent = new Intent(this, HelpActivity.class);
                 startActivity(webviewIntent);
                 return true;
             default:
