@@ -24,8 +24,10 @@ import android.provider.CalendarContract;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -70,6 +72,8 @@ public class PuzzleControllerActivity extends AppCompatActivity {
 
     //Audio
     MediaPlayer mp;
+    Button audioOff;
+
 
     public final static String EXTRA_MESSAGE_LAST_SCORE = "Desktop-P5M-app.lastScore";
     public final static String EXTRA_MESSAGE_RECORD = "Desktop-P5M-app.record";
@@ -136,7 +140,20 @@ public class PuzzleControllerActivity extends AppCompatActivity {
         super.onResume();
         mp.start();
     }
-
+    public void onAudioClick(View view) {
+        audioOff = (Button)findViewById(R.id.audioOff);
+        audioOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mp != null && mp.isPlaying()) {
+                    mp.pause();
+                }
+                else{
+                    mp.start();
+                }
+            }
+        });
+    }
     private void setImageFromAssets(String assetName, ImageView imageView) {
         // Get the dimensions of the View
         int targetW = imageView.getWidth();
