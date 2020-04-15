@@ -69,6 +69,13 @@ public class MainActivity extends AppCompatActivity {
     MediaPlayer mp;
     Button audioOff;
 
+    //Notification strings
+    public String not_title;
+    public String not_subtitle;
+    public String not_show_not;
+    public String seconds;
+
+
     // "random" or "selected". For the PuzzleControllerActivity to know how the puzzle started
     public static String selectedOrRandom;
 
@@ -297,15 +304,21 @@ public class MainActivity extends AppCompatActivity {
     public void createNotificationChannel() {
         miNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
+        //notification strings
+        not_title = getResources().getString(R.string.not_title);
+        not_subtitle = getResources().getString(R.string.not_subtitle);
+        not_show_not = getResources().getString(R.string.not_show_not);
+        seconds = getResources().getString(R.string.seconds);
+
         //para que en las versiones antiguas siga funcinando
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             //Crearemos el canal
             NotificationChannel nChannel = new NotificationChannel(PRIMARY_CHANNEL_ID,
-                    "¡Nueva puntuación!", NotificationManager.IMPORTANCE_HIGH);
+                    not_title, NotificationManager.IMPORTANCE_HIGH);
             nChannel.enableLights(true);
             nChannel.setLightColor(Color.RED);
             nChannel.enableVibration(true);
-            nChannel.setDescription("Tu nueva puntuación ha sido de: ");
+            nChannel.setDescription(not_subtitle);
             miNotifyManager.createNotificationChannel(nChannel);
         }
     }
@@ -329,6 +342,7 @@ public class MainActivity extends AppCompatActivity {
     }*/
 
     public void sendNotification() {
+
         Intent updateIntent = new Intent(ACTION_UPDATE_NOTIFICATION);
         PendingIntent pIntent = PendingIntent.getBroadcast(
                 this, NOTIFICATION_ID, updateIntent, PendingIntent.FLAG_ONE_SHOT);

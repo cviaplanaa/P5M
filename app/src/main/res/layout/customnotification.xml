@@ -7,12 +7,12 @@
         android:id="@+id/tvCustom1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="¡Nueva puntuación!"
+        android:text="@string/not_title"
         android:textSize="24dp"/>
     <TextView
         android:id="@+id/tvCustom2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tu nueva puntuación ha sido de: "/>
+        android:text="@string/not_subtitle"/>
 
 </LinearLayout>
