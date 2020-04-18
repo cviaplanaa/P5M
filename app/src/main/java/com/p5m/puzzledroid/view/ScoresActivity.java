@@ -53,9 +53,9 @@ public class ScoresActivity extends AppCompatActivity implements View.OnClickLis
      */
     private void showScores() {
         if (scores.isEmpty()) {
-            scoresView.setText("There are no scores yet.");
+            scoresView.setText(getResources().getString(R.string.no_scores));
         } else {
-            scoresView.setText(Score.formatScores(scores));
+            scoresView.setText(Score.formatScores(scores, getApplicationContext()));
         }
     }
 

@@ -365,42 +365,20 @@ public class MainActivity extends AppCompatActivity {
     public void createNotificationChannel() {
         miNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        //notification strings
-        not_title = getResources().getString(R.string.not_title);
-        not_subtitle = getResources().getString(R.string.not_subtitle);
-        not_show_not = getResources().getString(R.string.not_show_not);
-        seconds = getResources().getString(R.string.seconds);
 
         //para que en las versiones antiguas siga funcinando
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             //Crearemos el canal
             NotificationChannel nChannel = new NotificationChannel(PRIMARY_CHANNEL_ID,
-                    not_title, NotificationManager.IMPORTANCE_HIGH);
+                    getResources().getString(R.string.not_title), NotificationManager.IMPORTANCE_HIGH);
             nChannel.enableLights(true);
             nChannel.setLightColor(Color.RED);
             nChannel.enableVibration(true);
-            nChannel.setDescription(not_subtitle);
+            nChannel.setDescription(getResources().getString(R.string.not_subtitle));
             miNotifyManager.createNotificationChannel(nChannel);
         }
     }
 
-/*    public void notificacionPersonalizada(View view) {
-
-        RemoteViews rmViewsSmall = new RemoteViews(getPackageName(), R.layout.customsmall);
-        RemoteViews rmViewsGrande = new RemoteViews(getPackageName(), R.layout.customnotification);
-
-        rmViewsGrande.setTextViewText(R.id.tvCustom1, "¡Nueva puntuación!");
-        rmViewsGrande.setTextViewText(R.id.tvCustom2, "Tu nueva puntuación ha sido de: ");
-
-        Notification noti = new NotificationCompat.Builder(getApplicationContext(),
-                PRIMARY_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setCustomContentView(rmViewsSmall)
-                .setCustomBigContentView(rmViewsGrande)
-                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
-                .build();
-        miNotifyManager.notify(1, noti);
-    }*/
 
     public void sendNotification() {
 
@@ -411,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
 
         NotificationCompat.Builder nBuilder = getNotificationBuilder();
 
-        nBuilder.addAction(R.drawable.ic_notification, "Ver puntuación", pIntent);
+        nBuilder.addAction(R.drawable.ic_notification, getResources().getString(R.string.not_show_not), pIntent);
         miNotifyManager.notify(NOTIFICATION_ID, nBuilder.build());
 
     }
@@ -424,8 +402,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(this, PRIMARY_CHANNEL_ID)
-                .setContentTitle("¡Nueva puntuación!")
-                .setContentText("Tu nueva puntuación ha sido de: ")
+                .setContentTitle(getResources().getString(R.string.not_title))
+                .setContentText(getResources().getString(R.string.not_subtitle))
                 .setContentIntent(pIntent) //al dar click abrirá lo que esté en pIntent
                 .setAutoCancel(true) //al dar click cierra la notificacion
                 .setSmallIcon(R.drawable.ic_notification);
@@ -435,7 +413,7 @@ public class MainActivity extends AppCompatActivity {
     public void updateNotification() {
         //Bitmap androidImage = BitmapFactory.decodeResource(getResources(), R.drawable.bolivia);
         NotificationCompat.Builder nBuilder = getNotificationBuilder();
-        nBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(Integer.toString(lastScore) + " segundos"));
+        nBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(Integer.toString(lastScore) + getResources().getString(R.string.seconds)));
 
         miNotifyManager.notify(NOTIFICATION_ID, nBuilder.build());
     }
