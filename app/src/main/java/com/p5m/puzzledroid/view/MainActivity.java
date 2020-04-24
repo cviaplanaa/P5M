@@ -39,8 +39,10 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.p5m.puzzledroid.ImageController;
 import com.p5m.puzzledroid.PuzzleDroidApplication;
 import com.p5m.puzzledroid.R;
@@ -146,6 +148,15 @@ public class MainActivity extends AppCompatActivity {
                 showChangeLanguageDialog();
             }
         });
+
+        //Retrieve img from firebase
+        //https://www.androidhire.com/retrieve-image-from-firebase-storage-android/
+        ImageView imageView;
+        imageView=findViewById(R.id.testcat);
+
+        String url="https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/img%2Fanimal-17542_1280.jpg?alt=media&token=3012474a-bd47-43d9-b5d0-99816047498b";//Retrieved url as mentioned above
+
+        Glide.with(getApplicationContext()).load(url).into(imageView);
     }
 
     private void showChangeLanguageDialog() {
@@ -189,6 +200,8 @@ public class MainActivity extends AppCompatActivity {
         String language = prefs.getString("My_Lang", "");
         setLocale(language);
     }
+
+
     //Pause and Resume music (en segundo plano)
 
     protected void onPause(){
