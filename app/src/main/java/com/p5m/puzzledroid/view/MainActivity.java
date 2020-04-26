@@ -42,6 +42,11 @@ import android.widget.GridView;
 
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.internal.Storage;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.p5m.puzzledroid.ImageController;
 import com.p5m.puzzledroid.PuzzleDroidApplication;
 import com.p5m.puzzledroid.R;
@@ -83,11 +88,14 @@ public class MainActivity extends AppCompatActivity {
     public String not_show_not;
     public String seconds;
 
-
     // "random" or "selected". For the PuzzleControllerActivity to know how the puzzle started
     public static String selectedOrRandom;
 
     String photoPath;
+
+    // Firebase
+    FirebaseStorage firebaseStorage;
+    StorageReference storageReference;
 
     //Notification management
     private static final String PRIMARY_CHANNEL_ID = "Desktop-P5M-app.ChannelID";
@@ -127,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(getApplicationContext(), PuzzleControllerActivity.class);
                     int index = i % files.length;
                     String image = files[index];
-                    Timber.i("Image: " + image +", Index: " + index);
+                    Timber.i("Image: " + image + ", Index: " + index);
                     intent.putExtra("assetName", image);
                     selectedOrRandom = "selected";
                     startActivityForResult(intent, PUZZLE_CONTROLLER_ID);
@@ -141,16 +149,37 @@ public class MainActivity extends AppCompatActivity {
         actionBar.setTitle(getResources().getString(R.string.app_name));
 
         Button changeLang = findViewById(R.id.changeMyLang);
-        changeLang.setOnClickListener(new View.OnClickListener(){
+        changeLang.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view){
+            public void onClick(View view) {
                 showChangeLanguageDialog();
             }
         });
+
+        // Firebase test
+        String fileName = "fileName.jpg";
+        storageReference = firebaseStorage.getInstance().getReference();
+        StorageReference fileReference = storageReference.child(fileName);
+        fileReference.getDownloadUrl()
+                .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Timber.i("Success!");
+                        String url = uri.toString();
+                        downloadFile(MainActivity.this, "NewImage", ".jpg"
+                                , "downloads", url);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Timber.i("Failure! " + e.getMessage());
+                    }
+                });
     }
 
     public void downloadFile(Context context, String fileName, String fileExtension,
-                             String destinationDirectory, String url){
+                             String destinationDirectory, String url) {
         DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         Uri uri = Uri.parse(url);
         DownloadManager.Request request = new DownloadManager.Request(uri);
@@ -167,11 +196,11 @@ public class MainActivity extends AppCompatActivity {
         mBuilder.setSingleChoiceItems(listItems, -1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if (i == 0){
+                if (i == 0) {
                     setLocale("en");
                     recreate();
                 }
-                if (i == 1){
+                if (i == 1) {
                     setLocale("es");
                     recreate();
                 }
@@ -195,31 +224,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //load language saved in shared preferences
-    public void loadLocale (){
+    public void loadLocale() {
         SharedPreferences prefs = getSharedPreferences("Settings", Activity.MODE_PRIVATE);
         String language = prefs.getString("My_Lang", "");
         setLocale(language);
     }
     //Pause and Resume music (en segundo plano)
 
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
         mp.pause();
     }
 
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
         mp.start();
     }
+
     public void onAudioClick(View view) {
-        audioOff = (Button)findViewById(R.id.audioOff);
+        audioOff = (Button) findViewById(R.id.audioOff);
         audioOff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mp != null && mp.isPlaying()) {
+                if (mp != null && mp.isPlaying()) {
                     mp.pause();
-                }
-                else{
+                } else {
                     mp.start();
                 }
             }
@@ -228,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Make a puzzle of one of the unsolved images.
+     *
      * @param view
      */
     public void onRandomClick(View view) {
@@ -242,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
             Timber.i("Random Image: " + randomImage);
             Toast.makeText(getApplicationContext(),
                     "Current random image: " + UnsolvedImages.getNumberOfSolvedImages() + "/" +
-                    UnsolvedImages.getInstance().getNumberOfImages() + ".",
+                            UnsolvedImages.getInstance().getNumberOfImages() + ".",
                     Toast.LENGTH_LONG).show();
             Intent intent = new Intent(getApplicationContext(), PuzzleControllerActivity.class);
             intent.putExtra("assetName", randomImage);
