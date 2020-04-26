@@ -46,7 +46,7 @@ public class SplashScreenActivity extends AppCompatActivity {
             @Override
             public void run() {
                 List<Score> scores = scoreDao.getTopThreeScores();
-                Timber.i( getResources().getString(R.string.top_3_scores), scores.toString());
+                Timber.i("Top Three Scores: %s", scores.toString());
                 displayScores(scores);
             }
         });
@@ -60,20 +60,20 @@ public class SplashScreenActivity extends AppCompatActivity {
         String scoresString = "";
         switch(scores.size()) {
             case 0:
-                scoresString = getResources().getString(R.string.no_scores);
+                scoresString = "There are no scores.";
                 break;
             case 1:
-                scoresString = getResources().getString(R.string.first_score) +
-                        scores.get(0).getScoreSeconds() + getResources().getString(R.string.seconds);
+                scoresString = "First (and only) Score: " +
+                        scores.get(0).getScoreSeconds() + " seconds";
                 break;
             case 2:
-                scoresString = getResources().getString(R.string.first_score) + scores.get(0).getScoreSeconds() + getResources().getString(R.string.seconds) + "\n" +
-                        getResources().getString(R.string.second_score) + scores.get(1).getScoreSeconds() + getResources().getString(R.string.seconds);
+                scoresString = "First Score: " + scores.get(0).getScoreSeconds() + " seconds\n" +
+                        "Second Score: " + scores.get(1).getScoreSeconds() + " seconds";
                 break;
             default:
-                scoresString = getResources().getString(R.string.first_score) + scores.get(0).getScoreSeconds() + getResources().getString(R.string.seconds) + "\n" +
-                        getResources().getString(R.string.second_score) + scores.get(1).getScoreSeconds() + getResources().getString(R.string.seconds) + "\n" +
-                        getResources().getString(R.string.third_score) + scores.get(2).getScoreSeconds() + getResources().getString(R.string.seconds);
+                scoresString = "First Score: " + scores.get(0).getScoreSeconds() + " seconds\n" +
+                        "Second Score: " + scores.get(1).getScoreSeconds() + " seconds\n" +
+                        "Third Score: " + scores.get(2).getScoreSeconds() + " seconds";
         }
         TextView scoresView = findViewById(R.id.splashScoresView);
         scoresView.setText(scoresString);

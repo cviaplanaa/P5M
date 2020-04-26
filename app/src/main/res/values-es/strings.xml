@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PuzzleDroid</string>
-    <string name="seconds"> segundos</string>
+    <string name="seconds">segundos</string>
     <!-- Buttons -->
     <string name="gallery">Galería</string>
     <string name="random">Aleatorio</string>
@@ -23,15 +23,5 @@
     <string name="hello_first_fragment">Hola primer fragmento</string>
     <string name="hello_second_fragment">Hola segundo fragmento. Arg: %1$s</string>
     <string name="title_activity_b_o_r_r_a_r">BORRAR</string>
-
-    <!-- Scores -->
-    <string name="no_scores">No hay resultados</string>
-    <string name="first_score">Primera (y única) puntuación: </string>
-    <string name="second_score">Segunda puntuación: </string>
-    <string name="third_score">Tercera puntuación: </string>
-    <string name="top_3_scores">Top 3 puntuaciones: </string>
-    <string name="puzzle">Puzzle:&#160;</string>
-    <string name="time">Tiempo:&#160;</string>
-    <string name="score">Puntuación:&#160;</string>
 
 </resources>

@@ -39,10 +39,8 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.p5m.puzzledroid.ImageController;
 import com.p5m.puzzledroid.PuzzleDroidApplication;
 import com.p5m.puzzledroid.R;
@@ -148,15 +146,6 @@ public class MainActivity extends AppCompatActivity {
                 showChangeLanguageDialog();
             }
         });
-
-//        //Retrieve img from firebase
-//        //https://www.androidhire.com/retrieve-image-from-firebase-storage-android/
-//        ImageView imageView;
-//        imageView=findViewById(R.id.testcat);
-//        String url="https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/img%2Fanimal-17542_1280.jpg?alt=media&token=3012474a-bd47-43d9-b5d0-99816047498b";//Retrieved url as mentioned above
-//        Glide.with(getApplicationContext()).load(url).into(imageView);
-
-        String url = "https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/img%2Fanimal-17542_1280.jpg?alt=media&token=3012474a-bd47-43d9-b5d0-99816047498b"
     }
 
     private void showChangeLanguageDialog() {
@@ -200,8 +189,6 @@ public class MainActivity extends AppCompatActivity {
         String language = prefs.getString("My_Lang", "");
         setLocale(language);
     }
-
-
     //Pause and Resume music (en segundo plano)
 
     protected void onPause(){
@@ -378,20 +365,42 @@ public class MainActivity extends AppCompatActivity {
     public void createNotificationChannel() {
         miNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
+        //notification strings
+        not_title = getResources().getString(R.string.not_title);
+        not_subtitle = getResources().getString(R.string.not_subtitle);
+        not_show_not = getResources().getString(R.string.not_show_not);
+        seconds = getResources().getString(R.string.seconds);
 
         //para que en las versiones antiguas siga funcinando
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             //Crearemos el canal
             NotificationChannel nChannel = new NotificationChannel(PRIMARY_CHANNEL_ID,
-                    getResources().getString(R.string.not_title), NotificationManager.IMPORTANCE_HIGH);
+                    not_title, NotificationManager.IMPORTANCE_HIGH);
             nChannel.enableLights(true);
             nChannel.setLightColor(Color.RED);
             nChannel.enableVibration(true);
-            nChannel.setDescription(getResources().getString(R.string.not_subtitle));
+            nChannel.setDescription(not_subtitle);
             miNotifyManager.createNotificationChannel(nChannel);
         }
     }
 
+/*    public void notificacionPersonalizada(View view) {
+
+        RemoteViews rmViewsSmall = new RemoteViews(getPackageName(), R.layout.customsmall);
+        RemoteViews rmViewsGrande = new RemoteViews(getPackageName(), R.layout.customnotification);
+
+        rmViewsGrande.setTextViewText(R.id.tvCustom1, "¡Nueva puntuación!");
+        rmViewsGrande.setTextViewText(R.id.tvCustom2, "Tu nueva puntuación ha sido de: ");
+
+        Notification noti = new NotificationCompat.Builder(getApplicationContext(),
+                PRIMARY_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setCustomContentView(rmViewsSmall)
+                .setCustomBigContentView(rmViewsGrande)
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                .build();
+        miNotifyManager.notify(1, noti);
+    }*/
 
     public void sendNotification() {
 
@@ -402,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
 
         NotificationCompat.Builder nBuilder = getNotificationBuilder();
 
-        nBuilder.addAction(R.drawable.ic_notification, getResources().getString(R.string.not_show_not), pIntent);
+        nBuilder.addAction(R.drawable.ic_notification, "Ver puntuación", pIntent);
         miNotifyManager.notify(NOTIFICATION_ID, nBuilder.build());
 
     }
@@ -415,8 +424,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         NotificationCompat.Builder notifyBuilder = new NotificationCompat.Builder(this, PRIMARY_CHANNEL_ID)
-                .setContentTitle(getResources().getString(R.string.not_title))
-                .setContentText(getResources().getString(R.string.not_subtitle))
+                .setContentTitle("¡Nueva puntuación!")
+                .setContentText("Tu nueva puntuación ha sido de: ")
                 .setContentIntent(pIntent) //al dar click abrirá lo que esté en pIntent
                 .setAutoCancel(true) //al dar click cierra la notificacion
                 .setSmallIcon(R.drawable.ic_notification);
@@ -426,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
     public void updateNotification() {
         //Bitmap androidImage = BitmapFactory.decodeResource(getResources(), R.drawable.bolivia);
         NotificationCompat.Builder nBuilder = getNotificationBuilder();
-        nBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(Integer.toString(lastScore) + getResources().getString(R.string.seconds)));
+        nBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText(Integer.toString(lastScore) + " segundos"));
 
         miNotifyManager.notify(NOTIFICATION_ID, nBuilder.build());
     }

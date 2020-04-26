@@ -1,9 +1,5 @@
 package com.p5m.puzzledroid.database;
 
-import android.content.Context;
-
-import com.p5m.puzzledroid.R;
-
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -109,13 +105,13 @@ public class Score {
      * Format a list of scores to be shown in the Scores view.
      */
     @Ignore
-    public static String formatScores(List<Score> scores, Context context) {
+    public static String formatScores(List<Score> scores) {
         String result = "";
         for (Score score : scores) {
             result = result
-                    + context.getResources().getString(R.string.puzzle) + score.getPuzzleName() + "\n"
-                    + context.getResources().getString(R.string.time) + score.getFinishTime() + "\n"
-                    + context.getResources().getString(R.string.score) + score.getScoreSeconds() + context.getResources().getString(R.string.seconds) + "\n\n";
+                    + "Puzzle: " + score.getPuzzleName() + "\n"
+                    + "Time: " + score.getFinishTime() + "\n"
+                    + "Score: " + score.getScoreSeconds() + " seconds" + "\n\n";
         }
         return result;
     }
