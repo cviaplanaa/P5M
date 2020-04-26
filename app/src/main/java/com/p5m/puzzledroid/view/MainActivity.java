@@ -98,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
     // Firebase
     FirebaseStorage firebaseStorage;
     StorageReference storageReference;
+    ArrayList<String> imageUrls;
+    String filePath;
 
     //Notification management
     private static final String PRIMARY_CHANNEL_ID = "Desktop-P5M-app.ChannelID";
@@ -117,12 +119,38 @@ public class MainActivity extends AppCompatActivity {
         createNotificationChannel();
         registerReceiver(miReceiver, new IntentFilter(ACTION_UPDATE_NOTIFICATION));
         mp = PuzzleDroidApplication.getInstance().mp;
+
+        // Images:
+        filePath = "/storage/emulated/0/";
+        imageUrls = new ArrayList<String>();
+        imageUrls.add("firebase_images/animal-17542_1280.jpg");
+        imageUrls.add("firebase_images/calico-518375_1280.jpg");
+        imageUrls.add("firebase_images/cat-1474092_1280.jpg");
+        imageUrls.add("firebase_images/cat-2093639_1280.jpg");
+        imageUrls.add("firebase_images/cat-4082223_1280.jpg");
+        imageUrls.add("firebase_images/cat-4665180_1280.jpg");
+        imageUrls.add("firebase_images/cat-4919903_1280.jpg");
+        imageUrls.add("firebase_images/cat-814141_1280.jpg");
+        imageUrls.add("firebase_images/vintage-986051_1280.png");
+
+        // Delete image folder and recreate it and download all images
+        deleteImagesFolder();
+        downloadAllImages();
+
         AssetManager am = getAssets();
         try {
-            final String[] files = am.list("img");
 
-            // Add all 9 images to the list. A LinkedList must be used since it's mutable.
-            List<String> totalImages = new LinkedList<>(Arrays.asList(files));
+            final ArrayList<String> prefixedUrls = new ArrayList<>();
+            for (String url : imageUrls) {
+                prefixedUrls.add(filePath + url);
+            }
+
+//            final String[] files = am.list("img");
+//             Add all 9 images to the list. A LinkedList must be used since it's mutable.
+//            List<String> totalImages = new LinkedList<>(Arrays.asList(files));
+
+            final List<String> totalImages = prefixedUrls;
+
             UnsolvedImages unsolvedImages = UnsolvedImages.getInstance();
             unsolvedImages.setUnsolvedImages(totalImages);
             unsolvedImages.setNumberOfImages(totalImages.size());
@@ -135,15 +163,17 @@ public class MainActivity extends AppCompatActivity {
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Timber.i("Create Intent");
                     Intent intent = new Intent(getApplicationContext(), PuzzleControllerActivity.class);
-                    int index = i % files.length;
-                    String image = files[index];
+//                    int index = i % files.length;
+                    int index = i % totalImages.size();
+//                    String image = files[index];
+                    String image = totalImages.get(index);
                     Timber.i("Image: " + image + ", Index: " + index);
                     intent.putExtra("assetName", image);
                     selectedOrRandom = "selected";
                     startActivityForResult(intent, PUZZLE_CONTROLLER_ID);
                 }
             });
-        } catch (IOException e) {
+        } catch (Exception e) {
             Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT);
         }
         //change actionbar title, if not it will go according to the default language system
@@ -157,8 +187,6 @@ public class MainActivity extends AppCompatActivity {
                 showChangeLanguageDialog();
             }
         });
-        deleteImagesFolder();
-        downloadAllImages();
     }
 
     /**
@@ -166,17 +194,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private void downloadAllImages(){
         storageReference = firebaseStorage.getInstance().getReference();
-        ArrayList<String> imageUrls = new ArrayList<String>();
-        imageUrls.add("firebase_images/animal-17542_1280.jpg");
-        imageUrls.add("firebase_images/calico-518375_1280.jpg");
-        imageUrls.add("firebase_images/cat-1474092_1280.jpg");
-        imageUrls.add("firebase_images/cat-2093639_1280.jpg");
-        imageUrls.add("firebase_images/cat-4082223_1280.jpg");
-        imageUrls.add("firebase_images/cat-4665180_1280.jpg");
-        imageUrls.add("firebase_images/cat-4919903_1280.jpg");
-        imageUrls.add("firebase_images/cat-814141_1280.jpg");
-        imageUrls.add("firebase_images/vintage-986051_1280.png");
-
         for (String imageName : imageUrls) {
             downloadFromFirebase(imageName);
         }
@@ -186,8 +203,7 @@ public class MainActivity extends AppCompatActivity {
      * Delete the folder containing the downloaded images
      */
     private void deleteImagesFolder() {
-        String filePath = "/storage/emulated/0/firebase_images";
-        File file = new File(filePath);
+        File file = new File(filePath + "firebase_images");
         deleteFolder(file);
     }
 
@@ -220,8 +236,9 @@ public class MainActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-                        Timber.i("Success!");
+                        Timber.i("Success! Filename: " + fileName);
                         String url = uri.toString();
+                        Timber.i("PATH: " + getApplicationInfo().dataDir);
                         Timber.i("Url: " + url);
                         downloadFile(MainActivity.this, fileName, ""
                                 , url);
