@@ -21,6 +21,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 
@@ -46,6 +47,7 @@ import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 import com.p5m.puzzledroid.ImageController;
 import com.p5m.puzzledroid.PuzzleDroidApplication;
@@ -155,10 +157,64 @@ public class MainActivity extends AppCompatActivity {
                 showChangeLanguageDialog();
             }
         });
+        deleteImagesFolder();
+        downloadAllImages();
+    }
 
-        // Firebase test
-        String fileName = "fileName.jpg";
+    /**
+     * Download all images from our Firebase storage
+     */
+    private void downloadAllImages(){
         storageReference = firebaseStorage.getInstance().getReference();
+        ArrayList<String> imageUrls = new ArrayList<String>();
+        imageUrls.add("firebase_images/animal-17542_1280.jpg");
+        imageUrls.add("firebase_images/calico-518375_1280.jpg");
+        imageUrls.add("firebase_images/cat-1474092_1280.jpg");
+        imageUrls.add("firebase_images/cat-2093639_1280.jpg");
+        imageUrls.add("firebase_images/cat-4082223_1280.jpg");
+        imageUrls.add("firebase_images/cat-4665180_1280.jpg");
+        imageUrls.add("firebase_images/cat-4919903_1280.jpg");
+        imageUrls.add("firebase_images/cat-814141_1280.jpg");
+        imageUrls.add("firebase_images/vintage-986051_1280.png");
+
+        for (String imageName : imageUrls) {
+            downloadFromFirebase(imageName);
+        }
+    }
+
+    /**
+     * Delete the folder containing the downloaded images
+     */
+    private void deleteImagesFolder() {
+        String filePath = "/storage/emulated/0/firebase_images";
+        File file = new File(filePath);
+        deleteFolder(file);
+    }
+
+    /**
+     * Delete a whole folder from the system
+     * @param file
+     */
+    static void deleteFolder(File file) {
+        try {
+            for (File subFile : file.listFiles()) {
+                if (subFile.isDirectory()) {
+                    deleteFolder(subFile);
+                } else {
+                    subFile.delete();
+                }
+            }
+            file.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Download image from our Firebase storage, using its fileName path
+     * @param fileName
+     */
+    public void downloadFromFirebase(final String fileName) {
         StorageReference fileReference = storageReference.child(fileName);
         fileReference.getDownloadUrl()
                 .addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -166,8 +222,9 @@ public class MainActivity extends AppCompatActivity {
                     public void onSuccess(Uri uri) {
                         Timber.i("Success!");
                         String url = uri.toString();
-                        downloadFile(MainActivity.this, "NewImage", ".jpg"
-                                , "downloads", url);
+                        Timber.i("Url: " + url);
+                        downloadFile(MainActivity.this, fileName, ""
+                                , url);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -178,13 +235,18 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    public void downloadFile(Context context, String fileName, String fileExtension,
-                             String destinationDirectory, String url) {
+    /**
+     * Download image from URL
+     * @param context
+     * @param fileName
+     * @param fileExtension
+     * @param url
+     */
+    public void downloadFile(Context context, String fileName, String fileExtension, String url) {
         DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         Uri uri = Uri.parse(url);
         DownloadManager.Request request = new DownloadManager.Request(uri);
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        request.setDestinationInExternalFilesDir(context, destinationDirectory, fileName + fileExtension);
+        request.setDestinationInExternalPublicDir("", fileName + fileExtension);
         downloadManager.enqueue(request);
     }
 
