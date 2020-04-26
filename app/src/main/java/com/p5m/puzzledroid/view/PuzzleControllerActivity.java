@@ -16,6 +16,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
+import android.media.Image;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.util.Util;
 import com.p5m.puzzledroid.PieceController;
 import com.p5m.puzzledroid.PuzzleDroidApplication;
@@ -167,29 +169,6 @@ public class PuzzleControllerActivity extends AppCompatActivity {
         if(imgFile.exists()) {
             Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             imageView.setImageBitmap(myBitmap);
-        }
-
-        AssetManager am = getAssets();
-        try {
-//            InputStream is = am.open("img/" + assetName);
-//            // Get the dimensions of the bitmap
-//            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-//            bmOptions.inJustDecodeBounds = true;
-//            BitmapFactory.decodeStream(is, new Rect(-1, -1, -1, -1), bmOptions);
-//            int photoW = bmOptions.outWidth;
-//            int photoH = bmOptions.outHeight;
-//            // Determine how much to scale down the image
-//            int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-//            is.reset();
-//            // Decode the image file into a Bitmap sized to fill the View
-//            bmOptions.inJustDecodeBounds = false;
-//            bmOptions.inSampleSize = scaleFactor;
-//            bmOptions.inPurgeable = true;
-//            Bitmap bitmap = BitmapFactory.decodeStream(is, new Rect(-1, -1, -1, -1), bmOptions);
-//            imageView.setImageBitmap(bitmap);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
