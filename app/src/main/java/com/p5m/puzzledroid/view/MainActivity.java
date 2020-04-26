@@ -149,14 +149,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Retrieve img from firebase
-        //https://www.androidhire.com/retrieve-image-from-firebase-storage-android/
-        ImageView imageView;
-        imageView=findViewById(R.id.testcat);
+//        //Retrieve img from firebase
+//        //https://www.androidhire.com/retrieve-image-from-firebase-storage-android/
+//        ImageView imageView;
+//        imageView=findViewById(R.id.testcat);
+//        String url="https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/img%2Fanimal-17542_1280.jpg?alt=media&token=3012474a-bd47-43d9-b5d0-99816047498b";//Retrieved url as mentioned above
+//        Glide.with(getApplicationContext()).load(url).into(imageView);
 
-        String url="https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/img%2Fanimal-17542_1280.jpg?alt=media&token=3012474a-bd47-43d9-b5d0-99816047498b";//Retrieved url as mentioned above
-
-        Glide.with(getApplicationContext()).load(url).into(imageView);
+        String url = "https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/img%2Fanimal-17542_1280.jpg?alt=media&token=3012474a-bd47-43d9-b5d0-99816047498b"
     }
 
     private void showChangeLanguageDialog() {
