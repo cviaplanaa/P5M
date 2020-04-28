@@ -1,4 +1,4 @@
-package com.p5m.puzzledroid.view;
+package com.p5m.puzzledroid.view.mainActivity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -21,9 +21,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -43,28 +41,23 @@ import android.widget.GridView;
 
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
-import com.p5m.puzzledroid.ImageController;
-import com.p5m.puzzledroid.PuzzleDroidApplication;
+import com.p5m.puzzledroid.util.PuzzleDroidApplication;
 import com.p5m.puzzledroid.R;
-import com.p5m.puzzledroid.database.PuzzledroidDatabase;
-import com.p5m.puzzledroid.util.AppExecutors;
 import com.p5m.puzzledroid.util.UnsolvedImages;
-import com.p5m.puzzledroid.util.Utils;
+import com.p5m.puzzledroid.view.HelpActivity;
+import com.p5m.puzzledroid.view.PuzzleActivity;
+import com.p5m.puzzledroid.view.ScoresActivity;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
@@ -140,12 +133,12 @@ public class MainActivity extends AppCompatActivity {
             unsolvedImages.setNumberOfImages(totalImages.size());
             Timber.i("Unsolved images list filled: " + unsolvedImages.toString());
 
-            gridView.setAdapter(new ImageController(this, totalImages));
+            gridView.setAdapter(new MainActivityAdapter(this, totalImages));
             gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Timber.i("Create Intent");
-                    Intent intent = new Intent(getApplicationContext(), PuzzleControllerActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), PuzzleActivity.class);
                     int index = i % totalImages.size();
                     String image = totalImages.get(index);
                     Timber.i("Image: " + image + ", Index: " + index);
@@ -375,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
                     "Current random image: " + UnsolvedImages.getNumberOfSolvedImages() + "/" +
                             UnsolvedImages.getInstance().getNumberOfImages() + ".",
                     Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(getApplicationContext(), PuzzleControllerActivity.class);
+            Intent intent = new Intent(getApplicationContext(), PuzzleActivity.class);
             intent.putExtra("assetName", randomImage);
             selectedOrRandom = "random";
             startActivityForResult(intent, PUZZLE_CONTROLLER_ID);
@@ -464,7 +457,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Timber.i("onActivityResult");
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Intent intent = new Intent(this, PuzzleControllerActivity.class);
+            Intent intent = new Intent(this, PuzzleActivity.class);
             intent.putExtra("mCurrentPhotoPath", photoPath);
             startActivity(intent);
 
@@ -472,13 +465,13 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_IMAGE_GALLERY && resultCode == RESULT_OK) {
             Uri uri = data.getData();
 
-            Intent intent = new Intent(this, PuzzleControllerActivity.class);
+            Intent intent = new Intent(this, PuzzleActivity.class);
             intent.putExtra("mCurrentPhotoUri", uri.toString());
             startActivity(intent);
         }
 
         if (requestCode == PUZZLE_CONTROLLER_ID && resultCode == RESULT_OK) {
-            lastScore = Integer.parseInt(data.getStringExtra(PuzzleControllerActivity.EXTRA_MESSAGE_LAST_SCORE));
+            lastScore = Integer.parseInt(data.getStringExtra(PuzzleActivity.EXTRA_MESSAGE_LAST_SCORE));
             sendNotification();
         }
     }

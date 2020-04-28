@@ -1,4 +1,4 @@
-package com.p5m.puzzledroid;
+package com.p5m.puzzledroid.view.mainActivity;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -13,6 +13,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.p5m.puzzledroid.R;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,11 +25,11 @@ import timber.log.Timber;
 /**
  * Adapter for the MainActivity gridView
  */
-public class ImageController extends BaseAdapter {
+public class MainActivityAdapter extends BaseAdapter {
     private Context context;
     private List<String> images;
 
-    public ImageController(Context c, List<String> imagesList) {
+    public MainActivityAdapter(Context c, List<String> imagesList) {
         Timber.i("ImageController");
         context = c;
         images = imagesList;
@@ -55,7 +57,7 @@ public class ImageController extends BaseAdapter {
         // Get current image to be displayed
         String currentImage = images.get(position);
         // Add it to the ImageView
-        ImageView imageView = convertView.findViewById(R.id.gridImageview);
+        ImageView imageView = convertView.findViewById(R.id.gridImageView);
         Timber.i("ImageAdapter currentImage: " + currentImage);
         File imgFile = new File(currentImage);
         if(imgFile.exists()) {

@@ -1,4 +1,4 @@
-package com.p5m.puzzledroid;
+package com.p5m.puzzledroid.util;
 
 import android.media.MediaPlayer;
 import android.view.MotionEvent;
@@ -6,7 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
-import com.p5m.puzzledroid.view.PuzzleControllerActivity;
+import com.p5m.puzzledroid.R;
+import com.p5m.puzzledroid.view.PuzzleActivity;
 
 import timber.log.Timber;
 
@@ -16,9 +17,9 @@ import static java.lang.Math.sqrt;
 public class TouchListener implements View.OnTouchListener {
     private float xDelta;
     private float yDelta;
-    private PuzzleControllerActivity activity;
+    private PuzzleActivity activity;
 
-    public TouchListener(PuzzleControllerActivity activity) {
+    public TouchListener(PuzzleActivity activity) {
         Timber.i("TouchListener");
         this.activity = activity;
     }
@@ -33,7 +34,7 @@ public class TouchListener implements View.OnTouchListener {
         MediaPlayer move;
         MediaPlayer moveready;
 
-        PieceController piece = (PieceController) view;
+        Piece piece = (Piece) view;
         if (!piece.movable) {
             return true;
         }
