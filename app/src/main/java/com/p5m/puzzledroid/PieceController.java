@@ -6,7 +6,6 @@ import androidx.appcompat.widget.AppCompatImageView;
 
 import timber.log.Timber;
 
-//public class PuzzlePiece extends android.support.v7.widget.AppCompatImageView {
 public class PieceController extends AppCompatImageView {
     public int x;
     public int y;

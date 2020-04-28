@@ -98,8 +98,11 @@ public class MainActivity extends AppCompatActivity {
     // Firebase
     FirebaseStorage firebaseStorage;
     StorageReference storageReference;
-    ArrayList<String> imageUrls;
+    ArrayList<String> totalImages;
     String filePath;
+
+    // Views
+    GridView gridView;
 
     //Notification management
     private static final String PRIMARY_CHANNEL_ID = "Desktop-P5M-app.ChannelID";
@@ -120,52 +123,30 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(miReceiver, new IntentFilter(ACTION_UPDATE_NOTIFICATION));
         mp = PuzzleDroidApplication.getInstance().mp;
 
-        // Images:
-        filePath = "/storage/emulated/0/";
-        imageUrls = new ArrayList<String>();
-        imageUrls.add("firebase_images/animal-17542_1280.jpg");
-        imageUrls.add("firebase_images/calico-518375_1280.jpg");
-        imageUrls.add("firebase_images/cat-1474092_1280.jpg");
-        imageUrls.add("firebase_images/cat-2093639_1280.jpg");
-        imageUrls.add("firebase_images/cat-4082223_1280.jpg");
-        imageUrls.add("firebase_images/cat-4665180_1280.jpg");
-        imageUrls.add("firebase_images/cat-4919903_1280.jpg");
-        imageUrls.add("firebase_images/cat-814141_1280.jpg");
-        imageUrls.add("firebase_images/vintage-986051_1280.png");
+        // Find some Views
+        gridView = findViewById(R.id.grid);
 
-        // Delete image folder and recreate it and download all images
+        // Get the images list (path where they will be saved)
+        filePath = "/storage/emulated/0/";
+        totalImages = getTotalImages();
+
+        // Delete the image folder, recreate it and download all images
         deleteImagesFolder();
         downloadAllImages();
 
-        AssetManager am = getAssets();
         try {
-
-            final ArrayList<String> prefixedUrls = new ArrayList<>();
-            for (String url : imageUrls) {
-                prefixedUrls.add(filePath + url);
-            }
-
-//            final String[] files = am.list("img");
-//             Add all 9 images to the list. A LinkedList must be used since it's mutable.
-//            List<String> totalImages = new LinkedList<>(Arrays.asList(files));
-
-            final List<String> totalImages = prefixedUrls;
-
             UnsolvedImages unsolvedImages = UnsolvedImages.getInstance();
             unsolvedImages.setUnsolvedImages(totalImages);
             unsolvedImages.setNumberOfImages(totalImages.size());
             Timber.i("Unsolved images list filled: " + unsolvedImages.toString());
 
-            GridView grid = findViewById(R.id.grid);
-            grid.setAdapter(new ImageController(this));
-            grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            gridView.setAdapter(new ImageController(this, totalImages));
+            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Timber.i("Create Intent");
                     Intent intent = new Intent(getApplicationContext(), PuzzleControllerActivity.class);
-//                    int index = i % files.length;
                     int index = i % totalImages.size();
-//                    String image = files[index];
                     String image = totalImages.get(index);
                     Timber.i("Image: " + image + ", Index: " + index);
                     intent.putExtra("assetName", image);
@@ -176,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT);
         }
-        //change actionbar title, if not it will go according to the default language system
+        // Change actionbar title, if not it will go according to the default language system
         ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle(getResources().getString(R.string.app_name));
 
@@ -190,13 +171,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Download all images from our Firebase storage
+     * Return the list of all the image names (the path where each of them will be saved)
+     * @return
      */
-    private void downloadAllImages(){
-        storageReference = firebaseStorage.getInstance().getReference();
-        for (String imageName : imageUrls) {
-            downloadFromFirebase(imageName);
+    private ArrayList<String> getTotalImages() {
+        ArrayList<String> imageUrls = new ArrayList<>();
+        imageUrls.add("firebase_images/animal-17542_1280.jpg");
+        imageUrls.add("firebase_images/calico-518375_1280.jpg");
+        imageUrls.add("firebase_images/cat-1474092_1280.jpg");
+        imageUrls.add("firebase_images/cat-2093639_1280.jpg");
+        imageUrls.add("firebase_images/cat-4082223_1280.jpg");
+        imageUrls.add("firebase_images/cat-4665180_1280.jpg");
+        imageUrls.add("firebase_images/cat-4919903_1280.jpg");
+        imageUrls.add("firebase_images/cat-814141_1280.jpg");
+        imageUrls.add("firebase_images/vintage-986051_1280.png");
+        // Prefix the image folder path to each image
+        ArrayList<String> images = new ArrayList<>();
+        for (String url : imageUrls) {
+            images.add(filePath + url);
         }
+        return images;
     }
 
     /**
@@ -227,7 +221,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Download all images from our Firebase storage.
+     */
+    private void downloadAllImages(){
+        storageReference = firebaseStorage.getInstance().getReference();
+        for (String imageName : totalImages) {
+            downloadFromFirebase(imageName);
+        }
+        Timber.i("ALL IMAGES DOWNLOADED");
+    }
+
+    /**
      * Download image from our Firebase storage, using its fileName path
+     * Does so asynchronously.
      * @param fileName
      */
     public void downloadFromFirebase(final String fileName) {
@@ -250,6 +256,22 @@ public class MainActivity extends AppCompatActivity {
                         Timber.i("Failure! " + e.getMessage());
                     }
                 });
+    }
+
+    /**
+     * Method called when all the images are downloaded.
+     * It is useful because the downlaod is asynchronous. Therefore, before loading the gridView,
+     * all the images must be downloaded.
+     */
+    private void onFinishedDownloadedAllImages() {
+        loadGridView();
+    }
+
+    /**
+     * Loads the gridView. After all the images are downloaded.
+     */
+    private void loadGridView() {
+
     }
 
     /**

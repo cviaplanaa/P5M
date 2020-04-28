@@ -1,5 +1,7 @@
 package com.p5m.puzzledroid.view;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -26,6 +28,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -34,6 +37,8 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.bumptech.glide.util.Util;
 import com.p5m.puzzledroid.PieceController;
 import com.p5m.puzzledroid.PuzzleDroidApplication;
@@ -67,13 +72,14 @@ public class PuzzleControllerActivity extends AppCompatActivity {
     String photoPath;
     String photoUri;
     String assetName;
+
     // The score that will be recorded for this puzzle
     Score score;
 
-    // Create Animation
     Animation animation;
     ImageView imageView;
     Bitmap puzzlePiece;
+    RelativeLayout layout;
 
     //Audio
     MediaPlayer mp;
@@ -86,54 +92,26 @@ public class PuzzleControllerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mp = PuzzleDroidApplication.getInstance().mp;
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_puzzle);
         Timber.i("onCreate");
 
-        final RelativeLayout layout = findViewById(R.id.layout);
-        imageView = findViewById(R.id.imageView);
-
         // Get the data from the intent
         Intent intent = getIntent();
-        String intentExtra = intent.getStringExtra("assetName");
-        Timber.i(intentExtra);
         assetName = intent.getStringExtra("assetName");
-        photoPath = intent.getStringExtra("mCurrentPhotoPath");
-        photoUri = intent.getStringExtra("mCurrentPhotoUri");
+        Timber.i("AssetName: %s", assetName);
 
-        // run image related code after the view was laid out
-        // to have all dimensions calculated
-        imageView.post(new Runnable() {
-            @Override
-            public void run() {
-                if (assetName != null) {
-                    setImageFromAssets(assetName, imageView);
-                } else if (photoPath != null) {
-                    setImageFromPath(photoPath, imageView);
-                } else if (photoUri != null) {
-                    imageView.setImageURI(Uri.parse(photoUri));
-                }
-                pieces = cutImage();
-                TouchListener touchListener = new TouchListener(PuzzleControllerActivity.this);
-                // shuffle pieces order
-                Collections.shuffle(pieces);
-                for (PieceController piece : pieces) {
-                    piece.setOnTouchListener(touchListener);
-                    layout.addView(piece);
-                    // randomize position, on the bottom of the screen
-                    RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) piece.getLayoutParams();
-                    lParams.leftMargin = new Random().nextInt(layout.getWidth() - piece.width);
-                    lParams.topMargin = layout.getHeight() - piece.height;
-                    piece.setLayoutParams(lParams);
-                }
-            }
-        });
+        // Find the Views
+        imageView = findViewById(R.id.imageView);
+        layout = findViewById(R.id.layout);
+
+        // Load the image to the View (it is done asynchronously)
+        // It will call the code of the cutting of the image once it's loaded
+        loadImageToView();
 
         // Create the Score object with the current time
         score = new Score();
-        score.setPuzzleName(intentExtra);
+        score.setPuzzleName(assetName);
         score.setInitialTime(Calendar.getInstance().getTime());
     }
     protected void onPause(){
@@ -159,52 +137,122 @@ public class PuzzleControllerActivity extends AppCompatActivity {
             }
         });
     }
-    private void setImageFromAssets(String assetName, ImageView imageView) {
-        // Get the dimensions of the View
-        int targetW = imageView.getWidth();
-        int targetH = imageView.getHeight();
-        Timber.i("setImageFromAssets");
 
-        File imgFile = new  File(assetName);
-        if(imgFile.exists()) {
-            Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-            imageView.setImageBitmap(myBitmap);
+    /**
+     * Loads the image to the View, using Glide
+     * It does so asynchronously.
+     * Once it's loaded, run the code that makes the pieces out of it.
+     */
+    private void loadImageToView() {
+        Timber.i("setImageFromAssets: " + assetName);
+        String urrl = "https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/img%2Fcat-4919903_1280.jpg?alt=media&token=568dca59-eca2-441a-973e-9d8b31a94faf";
+        Glide.with(this)
+                .asBitmap()
+                .load(urrl)
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        imageView.setImageBitmap(resource);
+                        Timber.i("BITMAP IMAGE IS LOADED WITH GLIDE");
+                        // Once it's loaded, continue with the necessary code
+                        onImageLoaded();
+                    }
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                    }
+                });
+//        File imgFile = new File(assetName);
+//        if(imgFile.exists()) {
+//            Timber.i("Exists");
+//            Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+//            imageView.setImageBitmap(myBitmap);
+//        } else {
+//            Timber.i("Does not exist");
+//        }
+    }
+
+    /**
+     * This method is called when Glide finishes loading the image.
+     */
+    private void onImageLoaded() {
+        pieces = cutImage();
+        TouchListener touchListener = new TouchListener(PuzzleControllerActivity.this);
+        // Shuffle pieces order
+        Collections.shuffle(pieces);
+        for (PieceController piece : pieces) {
+            piece.setOnTouchListener(touchListener);
+            layout.addView(piece);
+            // randomize position, on the bottom of the screen
+            RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) piece.getLayoutParams();
+            lParams.leftMargin = new Random().nextInt(layout.getWidth() - piece.width);
+            lParams.topMargin = layout.getHeight() - piece.height;
+            piece.setLayoutParams(lParams);
         }
     }
 
+    /**
+     * Returns the pieces made from the image.
+     * @return
+     */
     private ArrayList<PieceController> cutImage() {
-        //int piecesNumber = 12;
+        Timber.i("cutImage");
         int rows = 3;
         int cols = 4;
 //        int rows = 1;
 //        int cols = 1;
         int piecesNumber = rows * cols;
-        Timber.i("cutImage");
-
-        ImageView imageView = findViewById(R.id.imageView);
-        ArrayList<PieceController> pieces = new ArrayList<>(piecesNumber);
+        pieces = new ArrayList<>(piecesNumber);
 
         // Get the scaled bitmap of the source image
-        BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
-        Bitmap bitmap = drawable.getBitmap();
+        Bitmap originalBitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
 
-        int[] dimensions = getPositionInImage(imageView);
-        int scaledBitmapLeft = dimensions[0];
-        int scaledBitmapTop = dimensions[1];
-        int scaledBitmapWidth = dimensions[2];
-        int scaledBitmapHeight = dimensions[3];
+        // The bitmap probably won't be centered (x=0, y=0). We have to center it because our code
+        // to extract each piece assumes that it is.
+        // ---------------------------------------------------------------------------
+        // I CAN'T MANAGE TO DO THIS CORRECTLY
+        // ---------------------------------------------------------------------------
+        int bitmapWidth = originalBitmap.getWidth();
+        int bitmapHeight = originalBitmap.getHeight();
+        Timber.i("WIDTH: %s HEIGHT: %s", bitmapWidth, bitmapHeight);
 
-        int croppedImageWidth = scaledBitmapWidth - 2 * abs(scaledBitmapLeft);
-        int croppedImageHeight = scaledBitmapHeight - 2 * abs(scaledBitmapTop);
+        Bitmap newBitmap = Bitmap.createScaledBitmap(originalBitmap, bitmapWidth, bitmapHeight, true);
+        Timber.i("WIDTH: %s HEIGHT: %s", newBitmap.getWidth(), newBitmap.getHeight());
 
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, scaledBitmapWidth, scaledBitmapHeight, true);
-        Bitmap croppedBitmap = Bitmap.createBitmap(scaledBitmap, abs(scaledBitmapLeft), abs(scaledBitmapTop), croppedImageWidth, croppedImageHeight);
+        // WORKS JUST THE FIRST TIME
+        Bitmap bitmap = newBitmap;
+        int pieceWidth = bitmapWidth/cols;
+        int pieceHeight = bitmapHeight/rows;
 
-        // Calculate the with and height of the pieces
-        int pieceWidth = croppedImageWidth/cols;
-        int pieceHeight = croppedImageHeight/rows;
+        // WORKS JUST THE FIRST TIME
+//        int[] dimensions = getPositionInImage(imageView);
+//        int bmX = dimensions[0];
+//        Timber.i("bmX: %s", bmX);
+//        int bmY = dimensions[1];
+//        Timber.i("bmY: %s", bmY);
+//        int bmWidth = dimensions[2];
+//        Timber.i("bmWidth: %s", bmWidth);
+//        int bmHeight = dimensions[3];
+//        Timber.i("bmHeight: %s", bmHeight);
+//        // Center the bitmap
+//        Bitmap bitmap = Bitmap.createScaledBitmap(originalBitmap, bmWidth, bmHeight, true);
+//        int pieceWidth = bmWidth/cols;
+//        int pieceHeight = bmHeight/rows;
+
+        // WORKS JUST THE FIRST TIME
+//        int croppedImageWidth = bmWidth - 2 * abs(bmX);
+//        Timber.i("Cropped Width: %s", croppedImageWidth);
+//        int croppedImageHeight = bmHeight - 2 * abs(bmY);
+//        Timber.i("Cropped Height: %s", croppedImageHeight);
+//
+//        Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, bmWidth, bmHeight, true);
+//        Bitmap croppedBitmap = Bitmap.createBitmap(scaledBitmap, abs(bmX), abs(bmY), croppedImageWidth, croppedImageHeight);
+//        // Calculate the with and height of each piece
+//        int pieceWidth = croppedImageWidth/cols;
+//        int pieceHeight = croppedImageHeight/rows;
+//        Bitmap bitmap = croppedBitmap;
 
         // Create each bitmap piece and add it to the resulting array
+        // The image bitmap has to be centered: x=0 and y=0
         int yCoord = 0;
         for (int row = 0; row < rows; row++) {
             int xCoord = 0;
@@ -218,9 +266,8 @@ public class PuzzleControllerActivity extends AppCompatActivity {
                 if (row > 0) {
                     offsetY = pieceHeight / 3;
                 }
-
-                // apply the offset to each piece
-                Bitmap pieceBitmap = Bitmap.createBitmap(croppedBitmap, xCoord - offsetX, yCoord - offsetY, pieceWidth + offsetX, pieceHeight + offsetY);
+                // Apply the offset to each piece
+                Bitmap pieceBitmap = Bitmap.createBitmap(bitmap, xCoord - offsetX, yCoord - offsetY, pieceWidth + offsetX, pieceHeight + offsetY);
                 PieceController piece = new PieceController(getApplicationContext());
                 piece.setImageBitmap(pieceBitmap);
                 piece.x = xCoord - offsetX + imageView.getLeft();
@@ -307,7 +354,6 @@ public class PuzzleControllerActivity extends AppCompatActivity {
             }
             yCoord += pieceHeight;
         }
-
         return pieces;
     }
 
