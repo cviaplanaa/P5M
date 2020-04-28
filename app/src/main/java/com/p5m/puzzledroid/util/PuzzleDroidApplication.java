@@ -1,7 +1,9 @@
-package com.p5m.puzzledroid;
+package com.p5m.puzzledroid.util;
 
 import android.app.Application;
 import android.media.MediaPlayer;
+
+import com.p5m.puzzledroid.R;
 
 import timber.log.Timber;
 

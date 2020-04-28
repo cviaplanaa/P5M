@@ -12,6 +12,7 @@ import com.p5m.puzzledroid.database.Score;
 import com.p5m.puzzledroid.database.ScoreDao;
 import com.p5m.puzzledroid.database.PuzzledroidDatabase;
 import com.p5m.puzzledroid.util.AppExecutors;
+import com.p5m.puzzledroid.view.mainActivity.MainActivity;
 
 import java.util.List;
 

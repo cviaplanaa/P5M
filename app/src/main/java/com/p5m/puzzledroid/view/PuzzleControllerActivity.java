@@ -3,7 +3,6 @@ package com.p5m.puzzledroid.view;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -12,11 +11,9 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
-import android.media.Image;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,24 +30,19 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.util.Util;
-import com.p5m.puzzledroid.PieceController;
-import com.p5m.puzzledroid.PuzzleDroidApplication;
+import com.p5m.puzzledroid.util.PuzzlePiece;
+import com.p5m.puzzledroid.util.PuzzleDroidApplication;
 import com.p5m.puzzledroid.R;
-import com.p5m.puzzledroid.TouchListener;
+import com.p5m.puzzledroid.util.TouchListener;
 import com.p5m.puzzledroid.database.PuzzledroidDatabase;
 import com.p5m.puzzledroid.database.Score;
 import com.p5m.puzzledroid.database.ScoreDao;
 import com.p5m.puzzledroid.util.AppExecutors;
 import com.p5m.puzzledroid.util.UnsolvedImages;
-import com.p5m.puzzledroid.util.Utils;
+import com.p5m.puzzledroid.view.mainActivity.MainActivity;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -63,7 +55,7 @@ import timber.log.Timber;
 import static java.lang.Math.abs;
 
 public class PuzzleControllerActivity extends AppCompatActivity {
-    ArrayList<PieceController> pieces;
+    ArrayList<PuzzlePiece> pieces;
     String photoPath;
     String photoUri;
     String assetName;
@@ -119,7 +111,7 @@ public class PuzzleControllerActivity extends AppCompatActivity {
                 TouchListener touchListener = new TouchListener(PuzzleControllerActivity.this);
                 // shuffle pieces order
                 Collections.shuffle(pieces);
-                for (PieceController piece : pieces) {
+                for (PuzzlePiece piece : pieces) {
                     piece.setOnTouchListener(touchListener);
                     layout.addView(piece);
                     // randomize position, on the bottom of the screen
@@ -172,7 +164,7 @@ public class PuzzleControllerActivity extends AppCompatActivity {
         }
     }
 
-    private ArrayList<PieceController> cutImage() {
+    private ArrayList<PuzzlePiece> cutImage() {
         //int piecesNumber = 12;
         int rows = 3;
         int cols = 4;
@@ -182,7 +174,7 @@ public class PuzzleControllerActivity extends AppCompatActivity {
         Timber.i("cutImage");
 
         ImageView imageView = findViewById(R.id.imageView);
-        ArrayList<PieceController> pieces = new ArrayList<>(piecesNumber);
+        ArrayList<PuzzlePiece> pieces = new ArrayList<>(piecesNumber);
 
         // Get the scaled bitmap of the source image
         BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
@@ -221,7 +213,7 @@ public class PuzzleControllerActivity extends AppCompatActivity {
 
                 // apply the offset to each piece
                 Bitmap pieceBitmap = Bitmap.createBitmap(croppedBitmap, xCoord - offsetX, yCoord - offsetY, pieceWidth + offsetX, pieceHeight + offsetY);
-                PieceController piece = new PieceController(getApplicationContext());
+                PuzzlePiece piece = new PuzzlePiece(getApplicationContext());
                 piece.setImageBitmap(pieceBitmap);
                 piece.x = xCoord - offsetX + imageView.getLeft();
                 piece.y = yCoord - offsetY + imageView.getTop();
@@ -358,7 +350,7 @@ public class PuzzleControllerActivity extends AppCompatActivity {
     public void checkEnd() {
         Timber.i("checkEnd");
         boolean allUnmovable = true;
-        for (PieceController piece : pieces) {
+        for (PuzzlePiece piece : pieces) {
             if (piece.movable) {
                 allUnmovable = false;
                 break;

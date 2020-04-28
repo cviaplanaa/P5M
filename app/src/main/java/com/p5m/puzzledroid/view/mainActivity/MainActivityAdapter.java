@@ -1,4 +1,4 @@
-package com.p5m.puzzledroid;
+package com.p5m.puzzledroid.view.mainActivity;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -12,18 +12,20 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
+import com.p5m.puzzledroid.R;
+
 import java.io.IOException;
 import java.io.InputStream;
 
 import timber.log.Timber;
 
-public class ImageController extends BaseAdapter {
+public class MainActivityAdapter extends BaseAdapter {
     private Context myContext;
     private AssetManager myAssetManager;
     private String[] files;
 
-    public ImageController(Context c) {
-        Timber.i("ImageController");
+    public MainActivityAdapter(Context c) {
+        Timber.i("MainActivityAdapter");
         myContext = c;
         myAssetManager = myContext.getAssets();
         try {
