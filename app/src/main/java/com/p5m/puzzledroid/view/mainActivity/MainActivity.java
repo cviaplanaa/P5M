@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -89,11 +88,15 @@ public class MainActivity extends AppCompatActivity {
 
     String photoPath;
 
+    // Views
+    GridView gridView;
+
     // Firebase
     FirebaseStorage firebaseStorage;
     StorageReference storageReference;
-    ArrayList<String> imageUrls;
-    String filePath;
+    // Path of the folder of the images and each of those images paths
+    String imageFolderPath;
+    ArrayList<String> imagesPaths;
 
     //Notification management
     private static final String PRIMARY_CHANNEL_ID = "Desktop-P5M-app.ChannelID";
@@ -114,63 +117,26 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(miReceiver, new IntentFilter(ACTION_UPDATE_NOTIFICATION));
         mp = PuzzleDroidApplication.getInstance().mp;
 
-        // Images:
-        filePath = "/storage/emulated/0/";
-        imageUrls = new ArrayList<String>();
-        imageUrls.add("firebase_images/animal-17542_1280.jpg");
-        imageUrls.add("firebase_images/calico-518375_1280.jpg");
-        imageUrls.add("firebase_images/cat-1474092_1280.jpg");
-        imageUrls.add("firebase_images/cat-2093639_1280.jpg");
-        imageUrls.add("firebase_images/cat-4082223_1280.jpg");
-        imageUrls.add("firebase_images/cat-4665180_1280.jpg");
-        imageUrls.add("firebase_images/cat-4919903_1280.jpg");
-        imageUrls.add("firebase_images/cat-814141_1280.jpg");
-        imageUrls.add("firebase_images/vintage-986051_1280.png");
+        // Find the Views
+        gridView = findViewById(R.id.grid);
 
-        // Delete image folder and recreate it and download all images
+        // Get the images names (paths) with the folderPath prefixed to each of them
+        imageFolderPath = "/storage/emulated/0/";
+        imagesPaths = getFirebaseImagesWithPath();
+
+        // Download the Firebase images, deleting the folder before doing so
         deleteImagesFolder();
         downloadAllImages();
 
-        AssetManager am = getAssets();
-        try {
+        UnsolvedImages unsolvedImages = UnsolvedImages.getInstance();
+        unsolvedImages.setUnsolvedImages(imagesPaths);
+        unsolvedImages.setNumberOfImages(imagesPaths.size());
+        Timber.i("Unsolved images list filled: " + unsolvedImages.toString());
 
-            final ArrayList<String> prefixedUrls = new ArrayList<>();
-            for (String url : imageUrls) {
-                prefixedUrls.add(filePath + url);
-            }
+        // CHANGE THIS
+        loadGridView();
 
-//            final String[] files = am.list("img");
-//             Add all 9 images to the list. A LinkedList must be used since it's mutable.
-//            List<String> totalImages = new LinkedList<>(Arrays.asList(files));
-
-            final List<String> totalImages = prefixedUrls;
-
-            UnsolvedImages unsolvedImages = UnsolvedImages.getInstance();
-            unsolvedImages.setUnsolvedImages(totalImages);
-            unsolvedImages.setNumberOfImages(totalImages.size());
-            Timber.i("Unsolved images list filled: " + unsolvedImages.toString());
-
-            GridView grid = findViewById(R.id.grid);
-            grid.setAdapter(new MainActivityAdapter(this));
-            grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Timber.i("Create Intent");
-                    Intent intent = new Intent(getApplicationContext(), PuzzleControllerActivity.class);
-//                    int index = i % files.length;
-                    int index = i % totalImages.size();
-//                    String image = files[index];
-                    String image = totalImages.get(index);
-                    Timber.i("Image: " + image + ", Index: " + index);
-                    intent.putExtra("assetName", image);
-                    selectedOrRandom = "selected";
-                    startActivityForResult(intent, PUZZLE_CONTROLLER_ID);
-                }
-            });
-        } catch (Exception e) {
-            Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT);
-        }
-        //change actionbar title, if not it will go according to the default language system
+        // Change actionbar title, if not it will go according to the default language system
         ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle(getResources().getString(R.string.app_name));
 
@@ -184,11 +150,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Return the list of the path of every image.
+     */
+    private ArrayList<String> getFirebaseImagesWithPath() {
+        ArrayList<String> imageUrls = new ArrayList<>();
+        imageUrls.add("firebase_images/animal-17542_1280.jpg");
+        imageUrls.add("firebase_images/calico-518375_1280.jpg");
+        imageUrls.add("firebase_images/cat-1474092_1280.jpg");
+        imageUrls.add("firebase_images/cat-2093639_1280.jpg");
+        imageUrls.add("firebase_images/cat-4082223_1280.jpg");
+        imageUrls.add("firebase_images/cat-4665180_1280.jpg");
+        imageUrls.add("firebase_images/cat-4919903_1280.jpg");
+        imageUrls.add("firebase_images/cat-814141_1280.jpg");
+        imageUrls.add("firebase_images/vintage-986051_1280.png");
+        ArrayList<String> images = new ArrayList<>();
+        for (String url : imageUrls) {
+            images.add(imageFolderPath + url);
+        }
+        return images;
+    }
+
+    /**
      * Download all images from our Firebase storage
      */
-    private void downloadAllImages(){
+    private void downloadAllImages() {
         storageReference = firebaseStorage.getInstance().getReference();
-        for (String imageName : imageUrls) {
+        for (String imageName : imagesPaths) {
             downloadFromFirebase(imageName);
         }
     }
@@ -197,12 +184,13 @@ public class MainActivity extends AppCompatActivity {
      * Delete the folder containing the downloaded images
      */
     private void deleteImagesFolder() {
-        File file = new File(filePath + "firebase_images");
+        File file = new File(imageFolderPath + "firebase_images");
         deleteFolder(file);
     }
 
     /**
      * Delete a whole folder from the system
+     *
      * @param file
      */
     static void deleteFolder(File file) {
@@ -222,6 +210,8 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Download image from our Firebase storage, using its fileName path
+     * It does it asynchronously.
+     *
      * @param fileName
      */
     public void downloadFromFirebase(final String fileName) {
@@ -248,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Download image from URL
+     *
      * @param context
      * @param fileName
      * @param fileExtension
@@ -259,6 +250,35 @@ public class MainActivity extends AppCompatActivity {
         DownloadManager.Request request = new DownloadManager.Request(uri);
         request.setDestinationInExternalPublicDir("", fileName + fileExtension);
         downloadManager.enqueue(request);
+    }
+
+    /**
+     * Method called when all the images are downloaded.
+     * It is useful because the downlaod is asynchronous. Therefore, before loading the gridView,
+     * all the images must be downloaded.
+     */
+    private void onFinishedDownloadedAllImages() {
+        loadGridView();
+    }
+
+    /**
+     * Loads the gridView. After all the images are downloaded.
+     */
+    private void loadGridView() {
+        gridView.setAdapter(new MainActivityAdapter(this, imagesPaths));
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Timber.i("Create Intent");
+                Intent intent = new Intent(getApplicationContext(), PuzzleControllerActivity.class);
+                int index = i % imagesPaths.size();
+                String image = imagesPaths.get(index);
+                Timber.i("Image: " + image + ", Index: " + index);
+                intent.putExtra("assetName", image);
+                selectedOrRandom = "selected";
+                startActivityForResult(intent, PUZZLE_CONTROLLER_ID);
+            }
+        });
     }
 
     private void showChangeLanguageDialog() {
