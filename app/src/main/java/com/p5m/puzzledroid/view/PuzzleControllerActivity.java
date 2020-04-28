@@ -79,7 +79,6 @@ public class PuzzleControllerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         mp = PuzzleDroidApplication.getInstance().mp;
 
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_puzzle);
         Timber.i("onCreate");

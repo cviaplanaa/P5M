@@ -96,7 +96,9 @@ public class MainActivity extends AppCompatActivity {
     StorageReference storageReference;
     // Path of the folder of the images and each of those images paths
     String imageFolderPath;
+    String imageUrlPath;
     ArrayList<String> imagesPaths;
+    ArrayList<String> imagesUrl;
 
     //Notification management
     private static final String PRIMARY_CHANNEL_ID = "Desktop-P5M-app.ChannelID";
@@ -121,12 +123,22 @@ public class MainActivity extends AppCompatActivity {
         gridView = findViewById(R.id.grid);
 
         // Get the images names (paths) with the folderPath prefixed to each of them
-        imageFolderPath = "/storage/emulated/0/";
+        imageFolderPath = "/storage/emulated/0/firebase_images";
+        imageUrlPath = "firebase_images/";
         imagesPaths = getFirebaseImagesWithPath();
+        imagesUrl = getFirebaseImagesWithUrl();
 
         // Download the Firebase images, deleting the folder before doing so
         deleteImagesFolder();
         downloadAllImages();
+
+        BroadcastReceiver onComplete = new BroadcastReceiver() {
+            public void onReceive(Context ctxt, Intent intent) {
+                // your code
+            }
+        };
+        registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
 
         UnsolvedImages unsolvedImages = UnsolvedImages.getInstance();
         unsolvedImages.setUnsolvedImages(imagesPaths);
@@ -150,22 +162,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Return the list of images names (paths).
+     */
+    private ArrayList<String> getFirebaseImagesRawNames() {
+        ArrayList<String> images = new ArrayList<>();
+        images.add("animal-17542_1280.jpg");
+        images.add("calico-518375_1280.jpg");
+        images.add("cat-1474092_1280.jpg");
+        images.add("cat-2093639_1280.jpg");
+        images.add("cat-4082223_1280.jpg");
+        images.add("cat-4665180_1280.jpg");
+        images.add("cat-4919903_1280.jpg");
+        images.add("cat-814141_1280.jpg");
+        images.add("vintage-986051_1280.png");
+        return images;
+    }
+
+    /**
      * Return the list of the path of every image.
      */
     private ArrayList<String> getFirebaseImagesWithPath() {
-        ArrayList<String> imageUrls = new ArrayList<>();
-        imageUrls.add("firebase_images/animal-17542_1280.jpg");
-        imageUrls.add("firebase_images/calico-518375_1280.jpg");
-        imageUrls.add("firebase_images/cat-1474092_1280.jpg");
-        imageUrls.add("firebase_images/cat-2093639_1280.jpg");
-        imageUrls.add("firebase_images/cat-4082223_1280.jpg");
-        imageUrls.add("firebase_images/cat-4665180_1280.jpg");
-        imageUrls.add("firebase_images/cat-4919903_1280.jpg");
-        imageUrls.add("firebase_images/cat-814141_1280.jpg");
-        imageUrls.add("firebase_images/vintage-986051_1280.png");
+        ArrayList<String> imageRawNames = getFirebaseImagesRawNames();
         ArrayList<String> images = new ArrayList<>();
-        for (String url : imageUrls) {
+        for (String url : imageRawNames) {
             images.add(imageFolderPath + url);
+        }
+        return images;
+    }
+    /**
+     * Return the list of the urls of each image.
+     */
+    private ArrayList<String> getFirebaseImagesWithUrl() {
+        ArrayList<String> imagesRawNames = getFirebaseImagesRawNames();
+        ArrayList<String> images = new ArrayList<>();
+        for (String url : imagesRawNames) {
+            images.add(imageUrlPath + url);
         }
         return images;
     }
@@ -174,8 +205,9 @@ public class MainActivity extends AppCompatActivity {
      * Download all images from our Firebase storage
      */
     private void downloadAllImages() {
+        Timber.i("downloadAllImages");
         storageReference = firebaseStorage.getInstance().getReference();
-        for (String imageName : imagesPaths) {
+        for (String imageName : imagesUrl) {
             downloadFromFirebase(imageName);
         }
     }
@@ -215,6 +247,8 @@ public class MainActivity extends AppCompatActivity {
      * @param fileName
      */
     public void downloadFromFirebase(final String fileName) {
+        Timber.i("downloadFromFirebase");
+        Timber.i("File: %s", fileName);
         StorageReference fileReference = storageReference.child(fileName);
         fileReference.getDownloadUrl()
                 .addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -245,11 +279,13 @@ public class MainActivity extends AppCompatActivity {
      * @param url
      */
     public void downloadFile(Context context, String fileName, String fileExtension, String url) {
+        Timber.i("downloadFile");
         DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         Uri uri = Uri.parse(url);
         DownloadManager.Request request = new DownloadManager.Request(uri);
         request.setDestinationInExternalPublicDir("", fileName + fileExtension);
         downloadManager.enqueue(request);
+        Timber.i("DONE DOWNLOAD");
     }
 
     /**
@@ -451,6 +487,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Called after the
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
