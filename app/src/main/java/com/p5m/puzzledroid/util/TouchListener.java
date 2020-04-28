@@ -34,7 +34,7 @@ public class TouchListener implements View.OnTouchListener {
         MediaPlayer move;
         MediaPlayer moveready;
 
-        Piece piece = (Piece) view;
+        PuzzlePiece piece = (PuzzlePiece) view;
         if (!piece.movable) {
             return true;
         }

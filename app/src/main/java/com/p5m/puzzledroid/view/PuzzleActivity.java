@@ -34,7 +34,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.p5m.puzzledroid.util.Piece;
+import com.p5m.puzzledroid.util.PuzzlePiece;
 import com.p5m.puzzledroid.util.PuzzleDroidApplication;
 import com.p5m.puzzledroid.R;
 import com.p5m.puzzledroid.util.TouchListener;
@@ -59,7 +59,7 @@ import static java.lang.Math.abs;
 
 public class PuzzleActivity extends AppCompatActivity {
     // All the pieces that make up the puzzle
-    ArrayList<Piece> pieces;
+    ArrayList<PuzzlePiece> pieces;
     String imageUrl;
 
     // The score that will be recorded for this puzzle
@@ -132,11 +132,11 @@ public class PuzzleActivity extends AppCompatActivity {
      * Once it's loaded, run the code that makes the pieces out of it.
      */
     private void loadImageToView() {
-        Timber.i("setImageFromAssets: %s", imageUrl);
-        String urrl = "https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/img%2Fcat-4919903_1280.jpg?alt=media&token=568dca59-eca2-441a-973e-9d8b31a94faf";
+        Timber.i("loadImageToView: %s", imageUrl);
+//        String urrl = "https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/img%2Fcat-4919903_1280.jpg?alt=media&token=568dca59-eca2-441a-973e-9d8b31a94faf";
         Glide.with(this)
                 .asBitmap()
-                .load(urrl)
+                .load(imageUrl)
                 .into(new CustomTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -167,7 +167,7 @@ public class PuzzleActivity extends AppCompatActivity {
         TouchListener touchListener = new TouchListener(PuzzleActivity.this);
         // Shuffle pieces order
         Collections.shuffle(pieces);
-        for (Piece piece : pieces) {
+        for (PuzzlePiece piece : pieces) {
             piece.setOnTouchListener(touchListener);
             layout.addView(piece);
             // randomize position, on the bottom of the screen
@@ -182,34 +182,16 @@ public class PuzzleActivity extends AppCompatActivity {
      * Returns the pieces made from the image.
      * @return
      */
-    private ArrayList<Piece> cutImage() {
+    private ArrayList<PuzzlePiece> cutImage() {
         Timber.i("cutImage");
         int rows = 3;
         int cols = 4;
 //        int rows = 1;
 //        int cols = 1;
         int piecesNumber = rows * cols;
-        pieces = new ArrayList<>(piecesNumber);
 
-        // Get the scaled bitmap of the source image
-        Bitmap originalBitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-
-        // The bitmap probably won't be centered (x=0, y=0). We have to center it because our code
-        // to extract each piece assumes that it is.
-        // ---------------------------------------------------------------------------
-        // I CAN'T MANAGE TO DO THIS CORRECTLY
-        // ---------------------------------------------------------------------------
-        int bitmapWidth = originalBitmap.getWidth(); // Always is 960
-        int bitmapHeight = originalBitmap.getHeight(); // Always is 1280
-        Timber.i("WIDTH: %s HEIGHT: %s", bitmapWidth, bitmapHeight);
-
-        Bitmap newBitmap = Bitmap.createScaledBitmap(originalBitmap, bitmapWidth, bitmapHeight, true);
-        Timber.i("WIDTH: %s HEIGHT: %s", newBitmap.getWidth(), newBitmap.getHeight());
-
-        // WORKS JUST THE FIRST TIME
-//        Bitmap bitmap = newBitmap;
-//        int pieceWidth = bitmapWidth/cols;
-//        int pieceHeight = bitmapHeight/rows;
+        ImageView imageView = findViewById(R.id.imageView);
+        ArrayList<PuzzlePiece> pieces = new ArrayList<>(piecesNumber);
 
         // Get the scaled bitmap of the source image
         BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
@@ -228,20 +210,8 @@ public class PuzzleActivity extends AppCompatActivity {
         Bitmap croppedBitmap = Bitmap.createBitmap(scaledBitmap, abs(scaledBitmapLeft), abs(scaledBitmapTop), croppedImageWidth, croppedImageHeight);
 
         // Calculate the with and height of the pieces
-//        int pieceWidth = croppedImageWidth/cols;
-//        int pieceHeight = croppedImageHeight/rows;
-        // WORKS JUST THE FIRST TIME
-//        int croppedImageWidth = bmWidth - 2 * abs(bmX);
-//        Timber.i("Cropped Width: %s", croppedImageWidth);
-//        int croppedImageHeight = bmHeight - 2 * abs(bmY);
-//        Timber.i("Cropped Height: %s", croppedImageHeight);
-//
-//        Bitmap scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, bmWidth, bmHeight, true);
-//        Bitmap croppedBitmap = Bitmap.createBitmap(scaledBitmap, abs(bmX), abs(bmY), croppedImageWidth, croppedImageHeight);
-//        // Calculate the with and height of each piece
-//        int pieceWidth = croppedImageWidth/cols;
-//        int pieceHeight = croppedImageHeight/rows;
-//        Bitmap bitmap = croppedBitmap;
+        int pieceWidth = croppedImageWidth/cols;
+        int pieceHeight = croppedImageHeight/rows;
 
         // Create each bitmap piece and add it to the resulting array
         // The image bitmap has to be centered: x=0 and y=0
@@ -259,8 +229,8 @@ public class PuzzleActivity extends AppCompatActivity {
                     offsetY = pieceHeight / 3;
                 }
                 // Apply the offset to each piece
-                Bitmap pieceBitmap = Bitmap.createBitmap(bitmap, xCoord - offsetX, yCoord - offsetY, pieceWidth + offsetX, pieceHeight + offsetY);
-                Piece piece = new Piece(getApplicationContext());
+                Bitmap pieceBitmap = Bitmap.createBitmap(croppedBitmap, xCoord - offsetX, yCoord - offsetY, pieceWidth + offsetX, pieceHeight + offsetY);
+                PuzzlePiece piece = new PuzzlePiece(getApplicationContext());
                 piece.setImageBitmap(pieceBitmap);
                 piece.x = xCoord - offsetX + imageView.getLeft();
                 piece.y = yCoord - offsetY + imageView.getTop();
@@ -396,7 +366,7 @@ public class PuzzleActivity extends AppCompatActivity {
     public void checkEnd() {
         Timber.i("checkEnd");
         boolean allUnmovable = true;
-        for (Piece piece : pieces) {
+        for (PuzzlePiece piece : pieces) {
             if (piece.movable) {
                 allUnmovable = false;
                 break;
