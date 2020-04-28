@@ -91,11 +91,8 @@ public class MainActivity extends AppCompatActivity {
     // Firebase
     FirebaseStorage firebaseStorage;
     StorageReference storageReference;
-    // Path of the folder of the images and each of those images paths
-    String imageFolderPath;
-    String imageUrlPath;
-    ArrayList<String> imagesPaths;
-    ArrayList<String> imagesUrl;
+    // Links to the images
+    ArrayList<String> imagesUrls;
 
     // Views
     GridView gridView;
@@ -123,37 +120,16 @@ public class MainActivity extends AppCompatActivity {
         gridView = findViewById(R.id.grid);
 
         // Get the images list (path where they will be saved)
-        imageFolderPath = "/storage/emulated/0/";
-        imageUrlPath = "firebase_images/";
-        imagesUrl = getFirebaseImagesWithUrl();
+        imagesUrls = getFirebaseImagesWithUrl();
 
-        // Delete the image folder, recreate it and download all images
-        deleteImagesFolder();
-        downloadAllImages();
+        // Load the GridView
+        loadGridView();
 
-        try {
-            UnsolvedImages unsolvedImages = UnsolvedImages.getInstance();
-            unsolvedImages.setUnsolvedImages(imagesUrl);
-            unsolvedImages.setNumberOfImages(imagesUrl.size());
-            Timber.i("Unsolved images list filled: " + unsolvedImages.toString());
+        UnsolvedImages unsolvedImages = UnsolvedImages.getInstance();
+        unsolvedImages.setUnsolvedImages(imagesUrls);
+        unsolvedImages.setNumberOfImages(imagesUrls.size());
+        Timber.i("Unsolved images list filled: %s", unsolvedImages.toString());
 
-            gridView.setAdapter(new MainActivityAdapter(this, imagesUrl));
-            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Timber.i("Create Intent");
-                    Intent intent = new Intent(getApplicationContext(), PuzzleActivity.class);
-                    int index = i % imagesUrl.size();
-                    String image = imagesUrl.get(index);
-                    Timber.i("Image: " + image + ", Index: " + index);
-                    intent.putExtra("assetName", image);
-                    selectedOrRandom = "selected";
-                    startActivityForResult(intent, PUZZLE_CONTROLLER_ID);
-                }
-            });
-        } catch (Exception e) {
-            Toast.makeText(this, e.getLocalizedMessage(), Toast.LENGTH_SHORT);
-        }
         // Change actionbar title, if not it will go according to the default language system
         ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle(getResources().getString(R.string.app_name));
@@ -167,34 +143,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Return the list of images names (paths).
-     */
-    private ArrayList<String> getFirebaseImagesRawNames() {
-        ArrayList<String> images = new ArrayList<>();
-        images.add("animal-17542_1280.jpg");
-        images.add("calico-518375_1280.jpg");
-        images.add("cat-1474092_1280.jpg");
-        images.add("cat-2093639_1280.jpg");
-        images.add("cat-4082223_1280.jpg");
-        images.add("cat-4665180_1280.jpg");
-        images.add("cat-4919903_1280.jpg");
-        images.add("cat-814141_1280.jpg");
-        images.add("vintage-986051_1280.png");
-        return images;
-    }
 
-    /**
-     * Return the list of the path of every image.
-     */
-    private ArrayList<String> getFirebaseImagesWithPath() {
-        ArrayList<String> imageRawNames = getFirebaseImagesRawNames();
-        ArrayList<String> images = new ArrayList<>();
-        for (String url : imageRawNames) {
-            images.add(imageFolderPath + url);
-        }
-        return images;
-    }
     /**
      * Return the list of the urls of each image.
      */
@@ -213,38 +162,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Delete the folder containing the downloaded images
-     */
-    private void deleteImagesFolder() {
-        File file = new File(imageFolderPath + "firebase_images");
-        deleteFolder(file);
-    }
-
-    /**
-     * Delete a whole folder from the system
-     * @param file
-     */
-    static void deleteFolder(File file) {
-        try {
-            for (File subFile : file.listFiles()) {
-                if (subFile.isDirectory()) {
-                    deleteFolder(subFile);
-                } else {
-                    subFile.delete();
-                }
-            }
-            file.delete();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Download all images from our Firebase storage.
      */
-    private void downloadAllImages(){
+    private void downloadAllImages() {
         storageReference = firebaseStorage.getInstance().getReference();
-        for (String imageName : imagesUrl) {
+        for (String imageName : imagesUrls) {
             downloadFromFirebase(imageName);
         }
         Timber.i("ALL IMAGES DOWNLOADED");
@@ -253,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Download image from our Firebase storage, using its fileName path
      * Does so asynchronously.
+     *
      * @param fileName
      */
     public void downloadFromFirebase(final String fileName) {
@@ -287,14 +210,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Loads the gridView. After all the images are downloaded.
+     * Loads the gridView.
      */
     private void loadGridView() {
-
+        gridView.setAdapter(new MainActivityAdapter(this, imagesUrls));
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Timber.i("Create Intent");
+                Intent intent = new Intent(getApplicationContext(), PuzzleActivity.class);
+                int index = i % imagesUrls.size();
+                String image = imagesUrls.get(index);
+                Timber.i("Image: " + image + ", Index: " + index);
+                intent.putExtra("assetName", image);
+                selectedOrRandom = "selected";
+                startActivityForResult(intent, PUZZLE_CONTROLLER_ID);
+            }
+        });
     }
 
     /**
      * Download image from URL
+     *
      * @param context
      * @param fileName
      * @param fileExtension
