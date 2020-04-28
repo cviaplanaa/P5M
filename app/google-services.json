@@ -15,14 +15,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "1021418980223-6vtf7ahg509q3d3602e2djiune8grd0u.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.p5m.puzzledroid",
-            "certificate_hash": "0d2d927456d4f8d0eeec7b2f8b1752c551d400d6"
-          }
-        },
-        {
           "client_id": "1021418980223-3im3lpfvsf4mkjb7oe4v63v7ugj98qv8.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -36,7 +28,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1021418980223-koo7gorslgnup340jl6gcfgve2n5c3k2.apps.googleusercontent.com",
+              "client_id": "1021418980223-3im3lpfvsf4mkjb7oe4v63v7ugj98qv8.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

@@ -1,7 +1,6 @@
 package com.p5m.puzzledroid.view;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -44,23 +43,9 @@ import android.widget.GridView;
 
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.internal.Storage;
-import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
@@ -116,13 +101,6 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> imageUrls;
     String filePath;
 
-    // Firebase Authentication
-    private SignInButton signInButton;
-    private Button signOutButton;
-    private GoogleSignInClient googleSignInClient;
-    private FirebaseAuth firebaseAuth;
-    private int RC_SIGN_IN = 1;
-
     //Notification management
     private static final String PRIMARY_CHANNEL_ID = "Desktop-P5M-app.ChannelID";
     private static final int NOTIFICATION_ID = 0;
@@ -141,36 +119,6 @@ public class MainActivity extends AppCompatActivity {
         createNotificationChannel();
         registerReceiver(miReceiver, new IntentFilter(ACTION_UPDATE_NOTIFICATION));
         mp = PuzzleDroidApplication.getInstance().mp;
-
-        // Find the button views
-        signInButton = findViewById(R.id.sign_in_button);
-        signOutButton = findViewById(R.id.sign_out_button);
-
-        // Firebase Auth
-        firebaseAuth = FirebaseAuth.getInstance();
-        GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions
-                .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken("TODO")
-                .requestEmail()
-                .build();
-
-        googleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
-
-        signInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signIn();
-            }
-        });
-
-        signOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                signOut();
-                Toast.makeText(MainActivity.this, "To be implemented",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
 
         // Images:
         filePath = "/storage/emulated/0/";
@@ -239,11 +187,6 @@ public class MainActivity extends AppCompatActivity {
                 showChangeLanguageDialog();
             }
         });
-    }
-
-    private void signIn() {
-        Intent signInIntent = googleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     /**
@@ -516,43 +459,6 @@ public class MainActivity extends AppCompatActivity {
             lastScore = Integer.parseInt(data.getStringExtra(PuzzleControllerActivity.EXTRA_MESSAGE_LAST_SCORE));
             sendNotification();
         }
-
-        if (requestCode == RC_SIGN_IN) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
-        }
-    }
-
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            Toast.makeText(MainActivity.this, "Signed In Successfully",
-                    Toast.LENGTH_SHORT).show();
-            firebaseGoogleAuth(account);
-        }
-        catch (ApiException e) {
-            Toast.makeText(MainActivity.this, "Signed In Failed",
-                    Toast.LENGTH_SHORT).show();
-            firebaseGoogleAuth(null);
-        }
-    }
-
-    private void firebaseGoogleAuth(final GoogleSignInAccount account) {
-        AuthCredential authCredential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-        firebaseAuth.signInWithCredential(authCredential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful()) {
-                    Toast.makeText(MainActivity.this, "Successful",
-                            Toast.LENGTH_SHORT).show();
-                    FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                    Timber.i("FIREBASE AUTH: Name: " + account.getDisplayName() + "Email: " + account.getEmail());
-                } else {
-                    Toast.makeText(MainActivity.this, "Failed",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
     }
 
     @Override
