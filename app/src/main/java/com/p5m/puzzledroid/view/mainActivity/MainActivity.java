@@ -91,8 +91,11 @@ public class MainActivity extends AppCompatActivity {
     // Firebase
     FirebaseStorage firebaseStorage;
     StorageReference storageReference;
-    ArrayList<String> totalImages;
-    String filePath;
+    // Path of the folder of the images and each of those images paths
+    String imageFolderPath;
+    String imageUrlPath;
+    ArrayList<String> imagesPaths;
+    ArrayList<String> imagesUrl;
 
     // Views
     GridView gridView;
@@ -120,8 +123,9 @@ public class MainActivity extends AppCompatActivity {
         gridView = findViewById(R.id.grid);
 
         // Get the images list (path where they will be saved)
-        filePath = "/storage/emulated/0/";
-        totalImages = getTotalImages();
+        imageFolderPath = "/storage/emulated/0/";
+        imageUrlPath = "firebase_images/";
+        imagesUrl = getFirebaseImagesWithUrl();
 
         // Delete the image folder, recreate it and download all images
         deleteImagesFolder();
@@ -129,18 +133,18 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             UnsolvedImages unsolvedImages = UnsolvedImages.getInstance();
-            unsolvedImages.setUnsolvedImages(totalImages);
-            unsolvedImages.setNumberOfImages(totalImages.size());
+            unsolvedImages.setUnsolvedImages(imagesUrl);
+            unsolvedImages.setNumberOfImages(imagesUrl.size());
             Timber.i("Unsolved images list filled: " + unsolvedImages.toString());
 
-            gridView.setAdapter(new MainActivityAdapter(this, totalImages));
+            gridView.setAdapter(new MainActivityAdapter(this, imagesUrl));
             gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Timber.i("Create Intent");
                     Intent intent = new Intent(getApplicationContext(), PuzzleActivity.class);
-                    int index = i % totalImages.size();
-                    String image = totalImages.get(index);
+                    int index = i % imagesUrl.size();
+                    String image = imagesUrl.get(index);
                     Timber.i("Image: " + image + ", Index: " + index);
                     intent.putExtra("assetName", image);
                     selectedOrRandom = "selected";
@@ -164,25 +168,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Return the list of all the image names (the path where each of them will be saved)
-     * @return
+     * Return the list of images names (paths).
      */
-    private ArrayList<String> getTotalImages() {
-        ArrayList<String> imageUrls = new ArrayList<>();
-        imageUrls.add("firebase_images/animal-17542_1280.jpg");
-        imageUrls.add("firebase_images/calico-518375_1280.jpg");
-        imageUrls.add("firebase_images/cat-1474092_1280.jpg");
-        imageUrls.add("firebase_images/cat-2093639_1280.jpg");
-        imageUrls.add("firebase_images/cat-4082223_1280.jpg");
-        imageUrls.add("firebase_images/cat-4665180_1280.jpg");
-        imageUrls.add("firebase_images/cat-4919903_1280.jpg");
-        imageUrls.add("firebase_images/cat-814141_1280.jpg");
-        imageUrls.add("firebase_images/vintage-986051_1280.png");
-        // Prefix the image folder path to each image
+    private ArrayList<String> getFirebaseImagesRawNames() {
         ArrayList<String> images = new ArrayList<>();
-        for (String url : imageUrls) {
-            images.add(filePath + url);
+        images.add("animal-17542_1280.jpg");
+        images.add("calico-518375_1280.jpg");
+        images.add("cat-1474092_1280.jpg");
+        images.add("cat-2093639_1280.jpg");
+        images.add("cat-4082223_1280.jpg");
+        images.add("cat-4665180_1280.jpg");
+        images.add("cat-4919903_1280.jpg");
+        images.add("cat-814141_1280.jpg");
+        images.add("vintage-986051_1280.png");
+        return images;
+    }
+
+    /**
+     * Return the list of the path of every image.
+     */
+    private ArrayList<String> getFirebaseImagesWithPath() {
+        ArrayList<String> imageRawNames = getFirebaseImagesRawNames();
+        ArrayList<String> images = new ArrayList<>();
+        for (String url : imageRawNames) {
+            images.add(imageFolderPath + url);
         }
+        return images;
+    }
+    /**
+     * Return the list of the urls of each image.
+     */
+    private ArrayList<String> getFirebaseImagesWithUrl() {
+        ArrayList<String> images = new ArrayList<>();
+        images.add("https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/firebase_images%2Fanimal-17542_1280.jpg?alt=media&token=06fcfe13-8790-435f-ab58-c54d98e8b254");
+        images.add("https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/firebase_images%2Fcalico-518375_1280.jpg?alt=media&token=d309f481-a6fb-485b-8f9b-72aef4b36c1c");
+        images.add("https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/firebase_images%2Fcat-1474092_1280.jpg?alt=media&token=9e1e06b3-c2f3-440f-b9ec-70b1edfa721e");
+        images.add("https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/firebase_images%2Fcat-2093639_1280.jpg?alt=media&token=c4ddd58f-dfb7-4d45-8fd1-d80a3724b09d");
+        images.add("https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/firebase_images%2Fcat-4082223_1280.jpg?alt=media&token=d9da7fde-a9b4-45de-b146-44259e42eb33");
+        images.add("https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/firebase_images%2Fcat-4665180_1280.jpg?alt=media&token=d46e6ffa-6186-4763-b137-b70308d9d480");
+        images.add("https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/firebase_images%2Fcat-4919903_1280.jpg?alt=media&token=c7b63ee9-f8fa-460b-9087-8b49be0d264e");
+        images.add("https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/firebase_images%2Fcat-814141_1280.jpg?alt=media&token=984876e9-490f-4c02-a442-d537ab128caa");
+        images.add("https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/firebase_images%2Fvintage-986051_1280.png?alt=media&token=a0ad516c-c74a-40e2-a2c0-d1e86a3d5f3d");
         return images;
     }
 
@@ -190,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
      * Delete the folder containing the downloaded images
      */
     private void deleteImagesFolder() {
-        File file = new File(filePath + "firebase_images");
+        File file = new File(imageFolderPath + "firebase_images");
         deleteFolder(file);
     }
 
@@ -218,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void downloadAllImages(){
         storageReference = firebaseStorage.getInstance().getReference();
-        for (String imageName : totalImages) {
+        for (String imageName : imagesUrl) {
             downloadFromFirebase(imageName);
         }
         Timber.i("ALL IMAGES DOWNLOADED");

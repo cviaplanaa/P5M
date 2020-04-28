@@ -133,7 +133,6 @@ public class PuzzleActivity extends AppCompatActivity {
      */
     private void loadImageToView() {
         Timber.i("loadImageToView: %s", imageUrl);
-//        String urrl = "https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/img%2Fcat-4919903_1280.jpg?alt=media&token=568dca59-eca2-441a-973e-9d8b31a94faf";
         Glide.with(this)
                 .asBitmap()
                 .load(imageUrl)
@@ -387,10 +386,9 @@ public class PuzzleActivity extends AppCompatActivity {
                     onFinishPuzzle();
                 }
             }, 1500);
-
-
         }
     }
+
     /**
      * Called upon finishing the puzzle. Store the score and exit the view.
      */
@@ -422,7 +420,6 @@ public class PuzzleActivity extends AppCompatActivity {
             UnsolvedImages.removeUnsolvedImage(imageUrl);
             Timber.i("Removed unsolved image: " + imageUrl);
         }
-
         // Exit the view
         finish();
     }
