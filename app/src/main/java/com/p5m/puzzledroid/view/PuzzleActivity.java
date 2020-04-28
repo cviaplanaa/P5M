@@ -58,8 +58,9 @@ import timber.log.Timber;
 import static java.lang.Math.abs;
 
 public class PuzzleActivity extends AppCompatActivity {
+    // All the pieces that make up the puzzle
     ArrayList<Piece> pieces;
-    String assetName;
+    String imageUrl;
 
     // The score that will be recorded for this puzzle
     Score score;
@@ -85,8 +86,8 @@ public class PuzzleActivity extends AppCompatActivity {
 
         // Get the data from the intent
         Intent intent = getIntent();
-        assetName = intent.getStringExtra("assetName");
-        Timber.i("AssetName: %s", assetName);
+        imageUrl = intent.getStringExtra("assetName");
+        Timber.i("AssetName: %s", imageUrl);
 
         // Find the Views
         imageView = findViewById(R.id.imageView);
@@ -98,7 +99,7 @@ public class PuzzleActivity extends AppCompatActivity {
 
         // Create the Score object with the current time
         score = new Score();
-        score.setPuzzleName(assetName);
+        score.setPuzzleName(imageUrl);
         score.setInitialTime(Calendar.getInstance().getTime());
     }
     protected void onPause(){
@@ -131,7 +132,7 @@ public class PuzzleActivity extends AppCompatActivity {
      * Once it's loaded, run the code that makes the pieces out of it.
      */
     private void loadImageToView() {
-        Timber.i("setImageFromAssets: %s", assetName);
+        Timber.i("setImageFromAssets: %s", imageUrl);
         String urrl = "https://firebasestorage.googleapis.com/v0/b/puzzledroid-p5m.appspot.com/o/img%2Fcat-4919903_1280.jpg?alt=media&token=568dca59-eca2-441a-973e-9d8b31a94faf";
         Glide.with(this)
                 .asBitmap()
@@ -198,33 +199,37 @@ public class PuzzleActivity extends AppCompatActivity {
         // ---------------------------------------------------------------------------
         // I CAN'T MANAGE TO DO THIS CORRECTLY
         // ---------------------------------------------------------------------------
-        int bitmapWidth = originalBitmap.getWidth();
-        int bitmapHeight = originalBitmap.getHeight();
+        int bitmapWidth = originalBitmap.getWidth(); // Always is 960
+        int bitmapHeight = originalBitmap.getHeight(); // Always is 1280
         Timber.i("WIDTH: %s HEIGHT: %s", bitmapWidth, bitmapHeight);
 
         Bitmap newBitmap = Bitmap.createScaledBitmap(originalBitmap, bitmapWidth, bitmapHeight, true);
         Timber.i("WIDTH: %s HEIGHT: %s", newBitmap.getWidth(), newBitmap.getHeight());
 
         // WORKS JUST THE FIRST TIME
-        Bitmap bitmap = newBitmap;
-        int pieceWidth = bitmapWidth/cols;
-        int pieceHeight = bitmapHeight/rows;
+//        Bitmap bitmap = newBitmap;
+//        int pieceWidth = bitmapWidth/cols;
+//        int pieceHeight = bitmapHeight/rows;
 
-        // WORKS JUST THE FIRST TIME
-//        int[] dimensions = getPositionInImage(imageView);
-//        int bmX = dimensions[0];
-//        Timber.i("bmX: %s", bmX);
-//        int bmY = dimensions[1];
-//        Timber.i("bmY: %s", bmY);
-//        int bmWidth = dimensions[2];
-//        Timber.i("bmWidth: %s", bmWidth);
-//        int bmHeight = dimensions[3];
-//        Timber.i("bmHeight: %s", bmHeight);
-//        // Center the bitmap
-//        Bitmap bitmap = Bitmap.createScaledBitmap(originalBitmap, bmWidth, bmHeight, true);
-//        int pieceWidth = bmWidth/cols;
-//        int pieceHeight = bmHeight/rows;
+        // Get the scaled bitmap of the source image
+        BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+        Bitmap bitmap = drawable.getBitmap();
 
+        int[] dimensions = getPositionInImage(imageView);
+        int scaledBitmapLeft = dimensions[0];
+        int scaledBitmapTop = dimensions[1];
+        int scaledBitmapWidth = dimensions[2];
+        int scaledBitmapHeight = dimensions[3];
+
+        int croppedImageWidth = scaledBitmapWidth - 2 * abs(scaledBitmapLeft);
+        int croppedImageHeight = scaledBitmapHeight - 2 * abs(scaledBitmapTop);
+
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, scaledBitmapWidth, scaledBitmapHeight, true);
+        Bitmap croppedBitmap = Bitmap.createBitmap(scaledBitmap, abs(scaledBitmapLeft), abs(scaledBitmapTop), croppedImageWidth, croppedImageHeight);
+
+        // Calculate the with and height of the pieces
+//        int pieceWidth = croppedImageWidth/cols;
+//        int pieceHeight = croppedImageHeight/rows;
         // WORKS JUST THE FIRST TIME
 //        int croppedImageWidth = bmWidth - 2 * abs(bmX);
 //        Timber.i("Cropped Width: %s", croppedImageWidth);
@@ -444,8 +449,8 @@ public class PuzzleActivity extends AppCompatActivity {
 
         // If the puzzle was created by the random action, remove it from the unsolved images
         if (MainActivity.selectedOrRandom == "random") {
-            UnsolvedImages.removeUnsolvedImage(assetName);
-            Timber.i("Removed unsolved image: " + assetName);
+            UnsolvedImages.removeUnsolvedImage(imageUrl);
+            Timber.i("Removed unsolved image: " + imageUrl);
         }
 
         // Exit the view
