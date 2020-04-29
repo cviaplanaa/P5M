@@ -48,35 +48,7 @@ public class SplashScreenActivity extends AppCompatActivity {
             public void run() {
                 List<Score> scores = scoreDao.getTopThreeScores();
                 Timber.i("Top Three Scores: %s", scores.toString());
-                displayScores(scores);
             }
         });
-    }
-
-    /**
-     * Display the top three scores (if there are).
-     * @param scores Scores to display
-     */
-    private void displayScores(List<Score> scores) {
-        String scoresString = "";
-        switch(scores.size()) {
-            case 0:
-                scoresString = "There are no scores.";
-                break;
-            case 1:
-                scoresString = "First (and only) Score: " +
-                        scores.get(0).getScoreSeconds() + " seconds";
-                break;
-            case 2:
-                scoresString = "First Score: " + scores.get(0).getScoreSeconds() + " seconds\n" +
-                        "Second Score: " + scores.get(1).getScoreSeconds() + " seconds";
-                break;
-            default:
-                scoresString = "First Score: " + scores.get(0).getScoreSeconds() + " seconds\n" +
-                        "Second Score: " + scores.get(1).getScoreSeconds() + " seconds\n" +
-                        "Third Score: " + scores.get(2).getScoreSeconds() + " seconds";
-        }
-        TextView scoresView = findViewById(R.id.splashScoresView);
-        scoresView.setText(scoresString);
     }
 }

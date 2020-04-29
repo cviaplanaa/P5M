@@ -28,4 +28,7 @@
                 <string name="not_subtitle">Your new score has been of:</string>
                 <string name="not_show_not">Show score</string>
 
+    <string name="date">Date</string>
+    <string name="score">Score</string>
+
 </resources>

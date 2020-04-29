@@ -34,6 +34,12 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.p5m.puzzledroid.util.PuzzlePiece;
 import com.p5m.puzzledroid.util.PuzzleDroidApplication;
 import com.p5m.puzzledroid.R;
@@ -43,6 +49,7 @@ import com.p5m.puzzledroid.database.Score;
 import com.p5m.puzzledroid.database.ScoreDao;
 import com.p5m.puzzledroid.util.AppExecutors;
 import com.p5m.puzzledroid.util.UnsolvedImages;
+import com.p5m.puzzledroid.util.Utils;
 import com.p5m.puzzledroid.view.mainActivity.MainActivity;
 
 import java.io.IOException;
@@ -50,7 +57,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import timber.log.Timber;
@@ -64,6 +73,9 @@ public class PuzzleActivity extends AppCompatActivity {
 
     // The score that will be recorded for this puzzle
     Score score;
+    // Firebase
+    private FirebaseFirestore firebaseFirestore;
+    private FirebaseUser firebaseUser;
 
     Animation animation;
     ImageView imageView;
@@ -101,6 +113,10 @@ public class PuzzleActivity extends AppCompatActivity {
         score = new Score();
         score.setPuzzleName(imageUrl);
         score.setInitialTime(Calendar.getInstance().getTime());
+
+        // Firebase
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        firebaseUser = Utils.firebaseUser;
     }
     protected void onPause(){
         super.onPause();
@@ -399,27 +415,44 @@ public class PuzzleActivity extends AppCompatActivity {
         long difference = score.getFinishTime().getTime() - score.getInitialTime().getTime();
         score.setScoreSeconds((int) (difference / 1000));
         final ScoreDao scoreDao = PuzzledroidDatabase.getInstance(this).scoreDao();
-        // Run the database access code on another thread/scope
-        AppExecutors.getInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                scoreDao.insert(score);
-                List<Score> scores = scoreDao.getScores();
-                Timber.i("ScoreInfo: %s", scores.toString());
-            }
-        });
+
+        // Add score to Firebase database
+        String userName = firebaseUser.getDisplayName();
+        Map<String, Object> userEntry = new HashMap<>();
+        userEntry.put("Date", score.getFinishTime().toString());
+        userEntry.put("Score", score.getScoreSeconds());
+        userEntry.put("puzzleName", score.getPuzzleName());
+        userEntry.put("user", userName);
+
+        // Add a new document with a generated ID
+        firebaseFirestore.collection("scores")
+                .add(userEntry)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Timber.i("DocumentSnapshot added with ID: %s", documentReference.getId());
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Timber.i( "Error adding document %s", e);
+                    }
+                });
         //Send intent to the app notification to show the last score
         Intent reply = new Intent();
         reply.putExtra(EXTRA_MESSAGE_LAST_SCORE, Integer.toString(score.getScoreSeconds()));
         setResult(RESULT_OK, reply);
+
         // Insert the new score to the calendar
-        insertToCalendar();
+        //insertToCalendar();
 
         // If the puzzle was created by the random action, remove it from the unsolved images
         if (MainActivity.selectedOrRandom == "random") {
             UnsolvedImages.removeUnsolvedImage(imageUrl);
             Timber.i("Removed unsolved image: " + imageUrl);
         }
+
         // Exit the view
         finish();
     }

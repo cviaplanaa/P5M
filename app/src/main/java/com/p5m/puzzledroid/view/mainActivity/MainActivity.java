@@ -31,35 +31,54 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 
 import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.p5m.puzzledroid.database.ScoreFirebase;
 import com.p5m.puzzledroid.util.PuzzleDroidApplication;
 import com.p5m.puzzledroid.R;
 import com.p5m.puzzledroid.util.UnsolvedImages;
+import com.p5m.puzzledroid.util.Utils;
 import com.p5m.puzzledroid.view.HelpActivity;
 import com.p5m.puzzledroid.view.PuzzleActivity;
 import com.p5m.puzzledroid.view.ScoresActivity;
+import com.p5m.puzzledroid.view.SplashScreenActivity;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import androidx.core.content.FileProvider;
 
@@ -89,13 +108,20 @@ public class MainActivity extends AppCompatActivity {
     String photoPath;
 
     // Firebase
-    FirebaseStorage firebaseStorage;
-    StorageReference storageReference;
+    private FirebaseStorage firebaseStorage;
+    private StorageReference storageReference;
+    private int RC_SIGN_IN = 12345;
+    private List<AuthUI.IdpConfig> providers;
+    private FirebaseFirestore firebaseFirestore;
+    private FirebaseUser firebaseUser;
+
+
     // Links to the images
-    ArrayList<String> imagesUrls;
+    private ArrayList<String> imagesUrls;
 
     // Views
-    GridView gridView;
+    private GridView gridView;
+    private Button signOutButton;
 
     //Notification management
     private static final String PRIMARY_CHANNEL_ID = "Desktop-P5M-app.ChannelID";
@@ -118,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Find some Views
         gridView = findViewById(R.id.grid);
+        signOutButton = findViewById(R.id.sign_out_button);
 
         // Get the images list (path where they will be saved)
         imagesUrls = getFirebaseImagesWithUrl();
@@ -141,8 +168,46 @@ public class MainActivity extends AppCompatActivity {
                 showChangeLanguageDialog();
             }
         });
+
+        // Firebase
+        // Choose authentication providers
+        providers = Arrays.asList(new AuthUI.IdpConfig.GoogleBuilder().build());
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        doGoogleLogin();
+
+        signOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doGoogleLogOut();
+            }
+        });
     }
 
+    /**
+     * Log in to the user's Google account.
+     */
+    private void doGoogleLogin() {
+        // Create and launch sign-in intent
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(providers)
+                        .build(),
+                RC_SIGN_IN);
+    }
+
+    /**
+     * Log out of the Google account. It always prompts you again to log in.
+     */
+    private void doGoogleLogOut() {
+        AuthUI.getInstance()
+                .signOut(getApplicationContext())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    public void onComplete(@NonNull Task<Void> task) {
+                        doGoogleLogin();
+                    }
+                });
+    }
 
     /**
      * Return the list of the urls of each image.
@@ -415,6 +480,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Method called when coming from an Intent
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -423,7 +489,6 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, PuzzleActivity.class);
             intent.putExtra("mCurrentPhotoPath", photoPath);
             startActivity(intent);
-
         }
         if (requestCode == REQUEST_IMAGE_GALLERY && resultCode == RESULT_OK) {
             Uri uri = data.getData();
@@ -432,10 +497,21 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("mCurrentPhotoUri", uri.toString());
             startActivity(intent);
         }
-
         if (requestCode == PUZZLE_CONTROLLER_ID && resultCode == RESULT_OK) {
             lastScore = Integer.parseInt(data.getStringExtra(PuzzleActivity.EXTRA_MESSAGE_LAST_SCORE));
             sendNotification();
+        }
+        if (requestCode == RC_SIGN_IN) {
+            IdpResponse response = IdpResponse.fromResultIntent(data);
+            if (resultCode == RESULT_OK) {
+                // Add the firebase user to the variable
+                firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                Utils.firebaseUser = firebaseUser;
+            } else {
+                // It is mandatory to be logged in
+                Toast.makeText(this, "You must log in.", Toast.LENGTH_LONG);
+                doGoogleLogin();
+            }
         }
     }
 
@@ -548,6 +624,4 @@ public class MainActivity extends AppCompatActivity {
             updateNotification();
         }
     }
-
-
 }

@@ -14,8 +14,8 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -61,4 +61,9 @@ dependencies {
     // Glide for loading images
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    // Firebase
+    implementation 'com.google.firebase:firebase-core:17.4.0'
+    implementation 'com.firebaseui:firebase-ui-auth:6.2.1'
+    implementation 'com.google.firebase:firebase-firestore:21.4.3'
+    implementation 'com.android.support:multidex:1.0.3'
 }

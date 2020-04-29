@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">PuzzleDroid</string>
     <string name="seconds">segundos</string>
+    <string name="date">Fecha</string>
+    <string name="score">Puntuación</string>
     <!-- Buttons -->
     <string name="gallery">Galería</string>
     <string name="random">Aleatorio</string>

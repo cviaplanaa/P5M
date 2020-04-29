@@ -8,7 +8,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1021418980223:android:c32e2ea15dfc154b53d04a",
+        "mobilesdk_app_id": "1:1021418980223:android:13af738b1867734953d04a",
         "android_client_info": {
           "package_name": "com.p5m.puzzledroid"
         }
@@ -28,7 +28,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1021418980223-3im3lpfvsf4mkjb7oe4v63v7ugj98qv8.apps.googleusercontent.com",
+              "client_id": "1021418980223-koo7gorslgnup340jl6gcfgve2n5c3k2.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
