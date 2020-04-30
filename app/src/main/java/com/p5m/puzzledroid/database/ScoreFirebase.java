@@ -79,7 +79,7 @@ public class ScoreFirebase {
             result += counter + ". " + score.user + "\n" +
             "    " + scoresActivity.getResources().getString(R.string.score) + ": " + score.Score + " " + scoresActivity.getResources().getString(R.string.seconds) + "\n" +
                     "    " + scoresActivity.getResources().getString(R.string.date) + ": " + score.Date + "\n" +
-                    "    Puzzle: " + score.puzzleName + "\n\n";
+                    "    Puzzle: " + score.puzzleName.substring(92, 102) + "\n\n";
             counter++;
         }
         return result;
