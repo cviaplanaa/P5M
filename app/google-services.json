@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1021418980223-clvm1llcib4ic4d92mtf1o0v174ns7vs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.p5m.puzzledroid",
+            "certificate_hash": "ec0056bec040097667df457df9783a6288911b79"
+          }
+        },
+        {
           "client_id": "1021418980223-3im3lpfvsf4mkjb7oe4v63v7ugj98qv8.apps.googleusercontent.com",
           "client_type": 3
         }
